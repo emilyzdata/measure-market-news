@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eupho by Z | Marketing Measurement & Attribution Intelligence</title>
+    
+    <!-- SEO Optimization -->
+    <meta name="description" content="eupho by Z is the leading B2B publication delivering news, analytical insights, and technical studies on digital marketing measurement, lift testing, Media Mix Modeling, and ad platform privacy solutions.">
+    <meta name="keywords" content="marketing measurement, attribution, lift testing, media mix modeling, ad tech, privacy sandbox, vogue business, marketing analytics">
+    
+    <!-- FontAwesome Icons for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Design System Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Top Info Bar / Header -->
+    <header class="top-header">
+        <div class="container top-header-inner">
+            <div class="top-header-left">
+                <div class="live-ticker">
+                    <span class="ticker-pulse"></span>
+                    <span>Live Index:</span>
+                </div>
+                <span>Attribution Variance 32% (Stable)</span>
+                <span>&bull;</span>
+                <span id="live-date">Friday, May 22, 2026</span>
+            </div>
+            
+            <div class="top-header-right">
+                <button id="theme-toggle" class="btn-theme-toggle" aria-label="Toggle Dark Mode">
+                    <i class="fas fa-moon"></i> Dark Mode
+                </button>
+                <span>|</span>
+                <span id="header-user-info" style="display: none; font-weight: 600; color: var(--accent-gold);"></span>
+                <span id="header-user-badge" style="display: none;"></span>
+                <button id="header-login-btn" class="btn-login" aria-label="Login">
+                    <i class="far fa-user"></i> Sign In
+                </button>
+                <button id="header-logout-btn" class="btn-logout" style="display: none;" aria-label="Log Out">
+                    <i class="fas fa-sign-out-alt"></i> Sign Out
+                </button>
+                <button id="header-subscribe-btn" class="btn-subscribe" aria-label="Subscribe">
+                    Subscribe
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Editorial Brand Header -->
+    <section class="brand-section">
+        <div class="container">
+            <a href="#home">
+                <h1 class="brand-title">EUPHO <span>by Z</span></h1>
+            </a>
+            <p class="brand-tagline">Insights & Intel for Marketing Decision Makers</p>
+            <div class="masthead-meta">
+                <div class="masthead-meta-left">VOL. CLXXV No. 60,820</div>
+                <div class="masthead-meta-center" id="masthead-date">Friday, May 22, 2026</div>
+                <div class="masthead-meta-right">$3.00</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sticky Main Navigation -->
+    <nav class="main-nav" id="main-navigation-menu">
+        <div class="container main-nav-inner">
+            <ul class="nav-links">
+                <li id="nav-home" class="active"><a href="#home">Home</a></li>
+                <li id="nav-attribution"><a href="#category/Attribution & Lift">Attribution & Lift</a></li>
+                <li id="nav-privacy"><a href="#category/Privacy & Identity">Privacy & Identity</a></li>
+                <li id="nav-mmm"><a href="#category/Media Mix Modeling">Media Mix Modeling</a></li>
+                <li id="nav-retail"><a href="#category/Retail Media">Retail Media</a></li>
+                <li id="nav-index"><a href="#index">Data Index</a></li>
+                <li id="nav-saved"><a href="#saved">Saved</a></li>
+            </ul>
+            
+            <div class="nav-right-tools">
+                <button class="search-trigger" id="nav-search-trigger" aria-label="Search articles" title="Search Articles">
+                    <i class="fas fa-search"></i>
+                </button>
+                <a href="#saved" class="bookmark-counter" aria-label="View Saved Articles" title="Bookmarked Articles">
+                    <i class="far fa-bookmark"></i>
+                    <span id="bookmark-count-badge" class="bookmark-count-badge">0</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Dynamic Content Wrapper -->
+    <main class="container" id="main-viewport"></main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col-brand">
+                    <h2 class="footer-logo">EUPHO <span>by Z</span></h2>
+                    <p class="footer-desc">
+                        eupho by Z is a premium B2B editorial service providing advanced diagnostic insights and operational reports on ad technology, measurement modeling, privacy regulations, and retail media network convergence.
+                    </p>
+                    <div class="footer-social-icons">
+                        <a href="#" class="social-icon" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-icon" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="social-icon" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="footer-col-title">Editorial</h4>
+                    <ul class="footer-col-links">
+                        <li><a href="#category/Attribution & Lift">Attribution & Lift</a></li>
+                        <li><a href="#category/Privacy & Identity">Privacy & Identity</a></li>
+                        <li><a href="#category/Media Mix Modeling">Media Mix Modeling</a></li>
+                        <li><a href="#category/Retail Media">Retail Media</a></li>
+                        <li><a href="#category/Campaign Strategy">Creative Strategy</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="footer-col-title">Resources</h4>
+                    <ul class="footer-col-links">
+                        <li><a href="#index">Data & Benchmark Index</a></li>
+                        <li><a href="#saved">Saved Briefings</a></li>
+                        <li><a href="#">Attribution Glossary</a></li>
+                        <li><a href="#">Industry Events</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="footer-col-title">Company</h4>
+                    <ul class="footer-col-links">
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Editorial Team</a></li>
+                        <li><a href="#">Memberships</a></li>
+                        <li><a href="#">Corporate Licensing</a></li>
+                        <li><a href="#">Contact Support</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2026 eupho by Z. All rights reserved. Registered trademark of B2B Media Group.</p>
+                <div class="footer-bottom-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Cookie Preferences</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ================================================================================
+       MODAL VIEWPORTS (HIDDEN BY DEFAULT)
+       ================================================================================ -->
+
+    <!-- Search Modal -->
+    <div class="modal-overlay" id="modal-search">
+        <div class="modal-window">
+            <div class="modal-header">
+                <h3 class="modal-title">Search Briefings</h3>
+                <button class="btn-close-modal" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="search-modal-form" class="form-group" style="margin-bottom: 0;">
+                    <label for="search-input-field">Keyword or Category</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="search-input-field" class="form-input" style="flex: 1;" placeholder="e.g. MMM, Lift, iOS..." required>
+                        <button type="submit" class="form-submit-btn" style="width: auto; margin-top: 0; padding: 0 20px;">Go</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="modal-login">
+        <div class="modal-window">
+            <div class="modal-header">
+                <h3 class="modal-title">Sign In to Your Account</h3>
+                <button class="btn-close-modal" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="login-modal-form">
+                    <div class="form-group">
+                        <label for="login-email">Email Address</label>
+                        <input type="email" id="login-email" class="form-input" placeholder="name@company.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" class="form-input" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="form-submit-btn">Sign In</button>
+                </form>
+                <div class="modal-footer-link">
+                    Don't have an account? <span onclick="closeAllModals(); openSubscriptionModal();">Subscribe Now</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subscription Modal -->
+    <div class="modal-overlay" id="modal-subscribe">
+        <div class="modal-window" style="max-width: 520px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Select Membership Plan</h3>
+                <button class="btn-close-modal" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="subscribe-modal-form">
+                    <div class="membership-plans-selector">
+                        <div class="plan-option selected" onclick="document.getElementById('plan-pro').click();">
+                            <div class="plan-option-left">
+                                <input type="radio" name="plan" id="plan-pro" checked style="display:none;">
+                                <div class="plan-radio"></div>
+                                <div class="plan-info">
+                                    <span class="plan-title">Professional (Individual)</span>
+                                    <span class="plan-desc">Full access to articles & benchmark tools</span>
+                                </div>
+                            </div>
+                            <span class="plan-price">$29<span style="font-size:0.65rem; font-weight:500;">/mo</span></span>
+                        </div>
+                        
+                        <div class="plan-option" onclick="document.getElementById('plan-corp').click();">
+                            <div class="plan-option-left">
+                                <input type="radio" name="plan" id="plan-corp" style="display:none;">
+                                <div class="plan-radio"></div>
+                                <div class="plan-info">
+                                    <span class="plan-title">Enterprise License</span>
+                                    <span class="plan-desc">For teams, custom clean rooms, priority support</span>
+                                </div>
+                            </div>
+                            <span class="plan-price">$120<span style="font-size:0.65rem; font-weight:500;">/mo</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="sub-email">Email Address</label>
+                        <input type="email" id="sub-email" class="form-input" placeholder="name@company.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="sub-card">Credit Card Number</label>
+                        <input type="text" id="sub-card" class="form-input" placeholder="4111 2222 3333 4444" required>
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1; margin-bottom: 8px;">
+                            <label for="sub-exp">Expiry</label>
+                            <input type="text" id="sub-exp" class="form-input" placeholder="MM/YY" required>
+                        </div>
+                        <div class="form-group" style="flex: 1; margin-bottom: 8px;">
+                            <label for="sub-cvv">CVC</label>
+                            <input type="text" id="sub-cvv" class="form-input" placeholder="123" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="form-submit-btn">Complete checkout &bull; Start Reading</button>
+                </form>
+                <div class="modal-footer-link">
+                    Already have an account? <span onclick="closeAllModals(); openLoginModal();">Sign In</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core App JS -->
+    <script src="app.js"></script>
+    <script>
+        // Set dynamic date in header
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const dateStr = new Date().toLocaleDateString('en-US', options);
+        document.getElementById('live-date').textContent = dateStr;
+        const mastheadDate = document.getElementById('masthead-date');
+        if (mastheadDate) {
+            mastheadDate.textContent = dateStr;
+        }
+
+        // Adjust checked styling on radio choices
+        document.querySelectorAll('.plan-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.plan-option').forEach(o => o.classList.remove('selected'));
+                option.classList.add('selected');
+            });
+        });
+    </script>
+</body>
+</html>
