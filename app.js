@@ -972,7 +972,7 @@ function translateUi() {
     const dict = LANG_DICT[lang];
     
     // Document Title
-    document.title = lang === 'zh' ? "媒体财经 | 营销度量与归因洞察" : "Media Metric | Marketing Measurement & Attribution Intelligence";
+    document.title = lang === 'zh' ? "媒体财经 - Emily Zhao | 营销度量与归因洞察" : "Media Metric by Emily Zhao | Marketing Measurement & Attribution Intelligence";
 
     // Brand Logo & Title
     const brandTitleEl = document.querySelector(".brand-title");
