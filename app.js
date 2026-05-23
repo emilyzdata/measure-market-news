@@ -1733,6 +1733,67 @@ function syncUserStateUI() {
 }
 
 // --- 6. ADMIN DASHBOARD VIEW ---
+
+const DEFAULT_NEWSLETTER_EN = `<div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #111111; line-height: 1.6;">
+    <div style="border-bottom: 2px solid #111111; padding-bottom: 20px; text-align: center; margin-bottom: 30px;">
+        <h1 style="font-family: Georgia, serif; font-size: 28px; letter-spacing: 2px; margin: 0; font-weight: bold;">MEDIA METRIC | WEEKLY BRIEFING</h1>
+        <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #666666; margin: 5px 0 0 0;">Attribution, Modeling, and Data Intelligence</p>
+    </div>
+    <p>Dear Subscriber,</p>
+    <p>Welcome to this week's analysis of marketing metrics. Today, we are deep diving into the causal impact of platforms, how Seinfeld models Bayesian relationships, and the culture-to-commerce pipeline of premium media.</p>
+    <div style="background-color: #f9f9f9; border: 1px solid #eeeeee; padding: 20px; margin: 25px 0;">
+        <span style="font-size: 10px; font-weight: bold; color: #D4AF37; text-transform: uppercase; letter-spacing: 1px;">Featured Analysis</span>
+        <h3 style="font-family: Georgia, serif; font-size: 20px; margin: 8px 0 12px 0;">《Euphoria》How it Turned Emotional Chaos into a Consumer Economy</h3>
+        <p style="font-size: 14px; color: #444444; margin-bottom: 16px;">
+            The cultural footprint of HBO's Euphoria extends far beyond television ratings. We analyze how the show's signature glitter-drenched, high-contrast aesthetic catalyzed a massive boom in the beauty, fashion, and retail consumer economies.
+        </p>
+        <a href="http://localhost:8080/#article/14" style="background-color: #111111; color: #ffffff; text-decoration: none; padding: 8px 16px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">Read Full Analysis</a>
+    </div>
+    <h3 style="font-family: Georgia, serif; font-size: 18px; border-bottom: 1px solid #dddddd; padding-bottom: 8px; margin-top: 30px;">Latest Intel</h3>
+    <div style="margin-bottom: 20px;">
+        <h4 style="margin: 0 0 5px 0; font-size: 15px;"><a href="http://localhost:8080/#article/5" style="color: #111111; text-decoration: none;">To Autumn on the L-Train: Re-Evaluating Romantic Poetry as a Cognitive Brake for Straphangers</a></h4>
+        <p style="font-size: 13px; color: #666666; margin: 0;">Facing transit delays and digital saturation, commuters find unexpected moments of mindfulness in John Keats' romantic verses.</p>
+    </div>
+    <div style="margin-bottom: 20px;">
+        <h4 style="margin: 0 0 5px 0; font-size: 15px;"><a href="http://localhost:8080/#article/7" style="color: #111111; text-decoration: none;">Modeling Relationships with Bayesian: What Seinfeld Teaches Us About Hidden Behavior Signals in Data</a></h4>
+        <p style="font-size: 13px; color: #666666; margin: 0;">Can Jerry, George, Elaine, and Kramer explain Bayes' Theorem? We map prior beliefs, likelihood updates, and posterior relationship probabilities to classic Seinfeld episodes.</p>
+    </div>
+    <div style="border-top: 1px solid #eeeeee; padding-top: 20px; margin-top: 40px; text-align: center; font-size: 11px; color: #888888;">
+        <p>© 2026 Media Metric. All rights reserved.</p>
+        <p style="margin-top: 5px;">If you wish to unsubscribe, click <a href="#" style="color: #666666; text-decoration: underline;">here</a>.</p>
+    </div>
+</div>`;
+
+const DEFAULT_NEWSLETTER_ZH = `<div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #111111; line-height: 1.6;">
+    <div style="border-bottom: 2px solid #111111; padding-bottom: 20px; text-align: center; margin-bottom: 30px;">
+        <h1 style="font-family: Georgia, serif; font-size: 28px; letter-spacing: 2px; margin: 0; font-weight: bold;">媒体财经 | 每周简报</h1>
+        <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #666666; margin: 5px 0 0 0;">广告归归因、度量建模与数据智能</p>
+    </div>
+    <p>亲爱的订阅者，您好：</p>
+    <p>欢迎阅读本周的营销度量分析。今天我们将深入探讨各平台广告的因果影响、如何使用《辛菲尔德》模型解析贝叶斯关系，以及精品媒体的“内容到商业”转化链条。</p>
+    <div style="background-color: #f9f9f9; border: 1px solid #eeeeee; padding: 20px; margin: 25px 0;">
+        <span style="font-size: 10px; font-weight: bold; color: #D4AF37; text-transform: uppercase; letter-spacing: 1px;">重磅分析</span>
+        <h3 style="font-family: Georgia, serif; font-size: 20px; margin: 8px 0 12px 0;">《亢奋》如何将情感混乱转化为消费经济</h3>
+        <p style="font-size: 14px; color: #444444; margin-bottom: 16px;">
+            HBO 剧集《亢奋》（Euphoria）的文化足迹远超电视收视率。我们分析了该剧标志性的亮片妆容、高对比度美学如何催化了美妆、时尚和零售消费经济的空前繁荣。
+        </p>
+        <a href="http://localhost:8080/#article/14" style="background-color: #111111; color: #ffffff; text-decoration: none; padding: 8px 16px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">阅读完整分析</a>
+    </div>
+    <h3 style="font-family: Georgia, serif; font-size: 18px; border-bottom: 1px solid #dddddd; padding-bottom: 8px; margin-top: 30px;">最新资讯</h3>
+    <div style="margin-bottom: 20px;">
+        <h4 style="margin: 0 0 5px 0; font-size: 15px;"><a href="http://localhost:8080/#article/5" style="color: #111111; text-decoration: none;">L线地铁上的《致秋天》：重估浪漫主义诗歌作为通勤族的认知缓冲器</a></h4>
+        <p style="font-size: 13px; color: #666666; margin: 0;">面对地铁延误和数字信息饱和，通勤族在约翰·济慈的浪漫诗句中找到了意想不到的静心时刻。</p>
+    </div>
+    <div style="margin-bottom: 20px;">
+        <h4 style="margin: 0 0 5px 0; font-size: 15px;"><a href="http://localhost:8080/#article/7" style="color: #111111; text-decoration: none;">用贝叶斯模型重构人际关系：《辛菲尔德》教我们如何解读数据中隐藏的行为信号</a></h4>
+        <p style="font-size: 13px; color: #666666; margin: 0;">杰里、乔治、伊莱恩和克莱默能解释贝叶斯定理吗？我们将先验信念、似然更新和后验关系概率映射到《辛菲尔德》的经典剧集中。</p>
+    </div>
+    <div style="border-top: 1px solid #eeeeee; padding-top: 20px; margin-top: 40px; text-align: center; font-size: 11px; color: #888888;">
+        <p>© 2026 媒体财经. 保留所有权利。</p>
+        <p style="margin-top: 5px;">如果您想退订邮件，请点击 <a href="#" style="color: #666666; text-decoration: underline;">此处</a>。</p>
+    </div>
+</div>`;
+
 async function renderAdmin() {
     const mainEl = document.getElementById("main-viewport");
     const subscribers = await getSubscribers();
@@ -1810,31 +1871,58 @@ async function renderAdmin() {
                     </div>
                     
                     <form id="newsletter-form">
-                        <div class="admin-input-group">
-                            <label class="admin-label">简报主题 (Subject)</label>
-                            <input type="text" id="email-subject" class="admin-input" placeholder="媒体财经每周简报：广告技术与度量创新" required>
+                        <!-- Language Tabs -->
+                        <div style="display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
+                            <button type="button" id="tab-en-btn" class="admin-btn" style="flex: 1; padding: 6px; font-size: 0.7rem; border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0; background-color: var(--text-primary); color: var(--bg-primary);">
+                                <i class="fas fa-globe-americas"></i> 英文简报 (EN)
+                            </button>
+                            <button type="button" id="tab-zh-btn" class="admin-btn admin-btn-secondary" style="flex: 1; padding: 6px; font-size: 0.7rem; border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;">
+                                <i class="fas fa-globe-asia"></i> 中文简报 (ZH)
+                            </button>
                         </div>
                         
-                        <div class="admin-input-group">
-                            <label class="admin-label">邮件内容 (Email Body - 支持 HTML)</label>
-                            <textarea id="email-body" class="admin-textarea" placeholder="<p>您好，这是本周的最新简报...</p>" required></textarea>
+                        <!-- English Content Fields -->
+                        <div id="content-area-en">
+                            <div class="admin-input-group">
+                                <label class="admin-label">English Subject</label>
+                                <input type="text" id="email-subject-en" class="admin-input" placeholder="Media Metric Weekly Briefing: Attribution, Modeling, and Data Intelligence" value="Media Metric Weekly Briefing: Attribution, Modeling, and Data Intelligence" required>
+                            </div>
+                            <div class="admin-input-group">
+                                <label class="admin-label">English Body (HTML)</label>
+                                <textarea id="email-body-en" class="admin-textarea" style="min-height: 180px;" required></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Chinese Content Fields -->
+                        <div id="content-area-zh" style="display: none;">
+                            <div class="admin-input-group">
+                                <label class="admin-label">中文简报主题</label>
+                                <input type="text" id="email-subject-zh" class="admin-input" placeholder="媒体财经每周简报：广告技术与度量创新" value="媒体财经每周简报：广告技术与度量创新">
+                            </div>
+                            <div class="admin-input-group">
+                                <label class="admin-label">中文简报内容 (HTML)</label>
+                                <textarea id="email-body-zh" class="admin-textarea" style="min-height: 180px;"></textarea>
+                            </div>
                         </div>
                         
                         <div class="admin-tip-box">
-                            <strong>测试发送提示：</strong><br>
-                            - <strong>方式一 (推荐测试)</strong>：点击“发送测试邮件到我的邮箱”，系统将通过 Resend 沙盒发送给您自己。<br>
-                            - <strong>方式二 (免费无代码)</strong>：点击“使用本地邮箱群发 (BCC)”，这会自动调用您电脑的邮件客户端（如 Outlook/Mail/Gmail），并将所有订阅者邮箱自动放在密送 (BCC) 栏，安全又完全免费！
+                            <strong>多语言分发机制 (Bilingual Routing)：</strong><br>
+                            - <strong>方式一 (Resend 智能群发)</strong>：系统会自动识别每位订阅者的注册语言（EN 或 ZH），并将对应的英文或中文简报投递到其邮箱中！<br>
+                            - <strong>方式二 (本地 BCC 群发)</strong>：由于本地客户端每次只能发送单个模板，请根据需要分别点击底部的“本地群发 (英文版)”或“本地群发 (中文版)”。
                         </div>
                         
-                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                            <button type="button" id="btn-send-test" class="admin-btn admin-btn-secondary">
-                                <i class="fas fa-paper-plane"></i> 发送测试邮件
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <button type="button" id="btn-send-test" class="admin-btn admin-btn-secondary" style="padding: 8px 12px;">
+                                <i class="fas fa-paper-plane"></i> 发送当前测试
                             </button>
-                            <button type="submit" id="btn-send-resend" class="admin-btn">
-                                <i class="fas fa-paper-plane"></i> Resend 一键群发
+                            <button type="submit" id="btn-send-resend" class="admin-btn" style="padding: 8px 12px;">
+                                <i class="fas fa-paper-plane"></i> Resend 智能群发
                             </button>
-                            <button type="button" id="btn-send-mailto" class="admin-btn admin-btn-secondary">
-                                <i class="fas fa-envelope"></i> 本地邮箱群发 (BCC)
+                            <button type="button" id="btn-send-mailto-en" class="admin-btn admin-btn-secondary" style="padding: 8px 12px; font-size: 0.65rem;">
+                                <i class="fas fa-envelope"></i> 本地群发 (英文版)
+                            </button>
+                            <button type="button" id="btn-send-mailto-zh" class="admin-btn admin-btn-secondary" style="padding: 8px 12px; font-size: 0.65rem;">
+                                <i class="fas fa-envelope"></i> 本地群发 (中文版)
                             </button>
                         </div>
                     </form>
@@ -1845,11 +1933,39 @@ async function renderAdmin() {
     
     mainEl.innerHTML = html;
     
+    // Set default HTML values in textareas
+    document.getElementById("email-body-en").value = DEFAULT_NEWSLETTER_EN;
+    document.getElementById("email-body-zh").value = DEFAULT_NEWSLETTER_ZH;
+    
     // Attach Admin View Listeners
     attachAdminEventListeners(subscribers);
 }
 
 function attachAdminEventListeners(subscribers) {
+    let activeTab = "en"; // track active tab: 'en' or 'zh'
+
+    // Tab Switch Listeners
+    const tabEnBtn = document.getElementById("tab-en-btn");
+    const tabZhBtn = document.getElementById("tab-zh-btn");
+    const contentEn = document.getElementById("content-area-en");
+    const contentZh = document.getElementById("content-area-zh");
+
+    tabEnBtn?.addEventListener("click", () => {
+        activeTab = "en";
+        tabEnBtn.className = "admin-btn";
+        tabZhBtn.className = "admin-btn admin-btn-secondary";
+        contentEn.style.display = "block";
+        contentZh.style.display = "none";
+    });
+
+    tabZhBtn?.addEventListener("click", () => {
+        activeTab = "zh";
+        tabZhBtn.className = "admin-btn";
+        tabEnBtn.className = "admin-btn admin-btn-secondary";
+        contentZh.style.display = "block";
+        contentEn.style.display = "none";
+    });
+
     // 1. Search Box
     const searchInput = document.getElementById("subscriber-search");
     searchInput?.addEventListener("input", (e) => {
@@ -1892,11 +2008,11 @@ function attachAdminEventListeners(subscribers) {
         document.body.removeChild(link);
     });
     
-    // 4. Send Test Email (Self)
+    // 4. Send Test Email (Self - sends the active tab's version)
     const testBtn = document.getElementById("btn-send-test");
     testBtn?.addEventListener("click", async () => {
-        const subject = document.getElementById("email-subject").value.trim();
-        const body = document.getElementById("email-body").value.trim();
+        const subject = document.getElementById(activeTab === "en" ? "email-subject-en" : "email-subject-zh").value.trim();
+        const body = document.getElementById(activeTab === "en" ? "email-body-en" : "email-body-zh").value.trim();
         const apiKey = localStorage.getItem("resend_api_key");
         
         if (!apiKey) {
@@ -1908,7 +2024,6 @@ function attachAdminEventListeners(subscribers) {
             return;
         }
         
-        // Find owner email (from localStorage or prompt)
         let testEmail = State.user.email || prompt("请输入接收测试的邮箱：");
         if (!testEmail) return;
         
@@ -1918,47 +2033,69 @@ function attachAdminEventListeners(subscribers) {
         const result = await sendNewsletterViaResend(subject, body, [{ email: testEmail }], apiKey);
         
         testBtn.disabled = false;
-        testBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 发送测试邮件';
+        testBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 发送当前测试';
         
         if (result.success && result.successCount > 0) {
-            alert(`测试邮件成功发送至 ${testEmail}！`);
+            alert(`(${activeTab.toUpperCase()} 版) 测试邮件成功发送至 ${testEmail}！`);
         } else {
             alert("发送测试失败：" + (result.errors.join(", ") || "未知原因"));
         }
     });
 
-    // 5. Send Mailto (BCC)
-    const mailtoBtn = document.getElementById("btn-send-mailto");
-    mailtoBtn?.addEventListener("click", () => {
-        const subject = document.getElementById("email-subject").value.trim();
-        const body = document.getElementById("email-body").value.trim();
-        
-        if (subscribers.length === 0) {
-            alert("订阅列表为空，无法发送邮件。");
+    // Helper: Trigger mailto BCC for a specific group of subscribers
+    function triggerMailto(subject, htmlBody, targetSubscribers) {
+        if (targetSubscribers.length === 0) {
+            alert("没有该语言偏好的订阅者，无法发送。");
             return;
         }
-        if (!subject || !body) {
-            alert("请填写简报主题和邮件内容！");
-            return;
-        }
-
-        const emails = subscribers.map(sub => sub.email).join(",");
         
-        // Strip HTML tags for local mail client fallback
+        const emails = targetSubscribers.map(sub => sub.email).join(",");
+        
+        // Strip HTML tags for local mail client body fallback
         const tempDiv = document.createElement("div");
-        tempDiv.innerHTML = body;
-        const textBody = tempDiv.textContent || tempDiv.innerText || body;
+        tempDiv.innerHTML = htmlBody;
+        const textBody = tempDiv.textContent || tempDiv.innerText || htmlBody;
 
         const mailtoUrl = `mailto:?bcc=${encodeURIComponent(emails)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(textBody)}`;
         window.open(mailtoUrl, "_blank");
+    }
+
+    // 5. Send Mailto EN (BCC)
+    const mailtoBtnEn = document.getElementById("btn-send-mailto-en");
+    mailtoBtnEn?.addEventListener("click", () => {
+        const subject = document.getElementById("email-subject-en").value.trim();
+        const body = document.getElementById("email-body-en").value.trim();
+        if (!subject || !body) {
+            alert("请填写英文版简报的主题和内容！");
+            return;
+        }
+        const targets = subscribers.filter(sub => sub.language !== 'zh');
+        triggerMailto(subject, body, targets);
+    });
+
+    // 5.2 Send Mailto ZH (BCC)
+    const mailtoBtnZh = document.getElementById("btn-send-mailto-zh");
+    mailtoBtnZh?.addEventListener("click", () => {
+        const subject = document.getElementById("email-subject-zh").value.trim();
+        const body = document.getElementById("email-body-zh").value.trim();
+        if (!subject || !body) {
+            alert("请填写中文版简报的主题和内容！");
+            return;
+        }
+        const targets = subscribers.filter(sub => sub.language === 'zh');
+        triggerMailto(subject, body, targets);
     });
     
-    // 6. Resend Bulk Send
+    // 6. Resend Bulk Send (Bilingual Smart Router)
     const form = document.getElementById("newsletter-form");
     form?.addEventListener("submit", async (e) => {
         e.preventDefault();
-        const subject = document.getElementById("email-subject").value.trim();
-        const body = document.getElementById("email-body").value.trim();
+        
+        const enSubject = document.getElementById("email-subject-en").value.trim();
+        const enBody = document.getElementById("email-body-en").value.trim();
+        const zhSubject = document.getElementById("email-subject-zh").value.trim();
+        const zhBody = document.getElementById("email-body-zh").value.trim();
+        
         const apiKey = localStorage.getItem("resend_api_key");
         
         if (!apiKey) {
@@ -1970,7 +2107,7 @@ function attachAdminEventListeners(subscribers) {
             return;
         }
         
-        if (!confirm(`您确定要使用 Resend 向 ${subscribers.length} 名订阅者发送此简报吗？`)) {
+        if (!confirm(`您将使用 Resend 智能群发功能向 ${subscribers.length} 名订阅者推送简报。订阅 ZH 的用户将收到中文简报，其余用户将收到英文简报。确定继续吗？`)) {
             return;
         }
         
@@ -1978,18 +2115,45 @@ function attachAdminEventListeners(subscribers) {
         sendBtn.disabled = true;
         sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 发送中...';
         
-        const result = await sendNewsletterViaResend(subject, body, subscribers, apiKey);
+        const enTargets = subscribers.filter(sub => sub.language !== 'zh');
+        const zhTargets = subscribers.filter(sub => sub.language === 'zh');
+        
+        let totalSuccess = 0;
+        let totalFail = 0;
+        let allErrors = [];
+        
+        // 1. Send EN version to EN subscribers
+        if (enTargets.length > 0) {
+            const enResult = await sendNewsletterViaResend(enSubject, enBody, enTargets, apiKey);
+            if (enResult.success) {
+                totalSuccess += enResult.successCount;
+                totalFail += enResult.failCount;
+                allErrors = allErrors.concat(enResult.errors);
+            } else {
+                totalFail += enTargets.length;
+                allErrors.push("英文群发接口错误: " + enResult.error);
+            }
+        }
+        
+        // 2. Send ZH version to ZH subscribers
+        if (zhTargets.length > 0) {
+            const zhResult = await sendNewsletterViaResend(zhSubject, zhBody, zhTargets, apiKey);
+            if (zhResult.success) {
+                totalSuccess += zhResult.successCount;
+                totalFail += zhResult.failCount;
+                allErrors = allErrors.concat(zhResult.errors);
+            } else {
+                totalFail += zhTargets.length;
+                allErrors.push("中文群发接口错误: " + zhResult.error);
+            }
+        }
         
         sendBtn.disabled = false;
-        sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Resend 一键群发';
+        sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Resend 智能群发';
         
-        if (result.success) {
-            alert(`发送完毕！\n成功：${result.successCount} 封\n失败：${result.failCount} 封`);
-            if (result.errors.length > 0) {
-                console.error("Resend delivery errors:", result.errors);
-            }
-        } else {
-            alert("发送群发失败：" + result.error);
+        alert(`智能群发完成！\n成功投递：${totalSuccess} 封\n发送失败：${totalFail} 封`);
+        if (allErrors.length > 0) {
+            console.error("智能群发投递错误日志:", allErrors);
         }
     });
 }
