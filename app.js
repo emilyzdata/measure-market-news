@@ -680,7 +680,14 @@ const LANG_DICT = {
         newsletterBtn: "Subscribe",
         newsletterDisclaimer: "No spam. Unsubscribe at any time.",
         newsletterSuccessTitle: "Thank You!",
-        newsletterSuccessDesc: "You have successfully subscribed to our weekly briefings."
+        newsletterSuccessDesc: "You have successfully subscribed to our weekly briefings.",
+        searchBriefingsTitle: "Search Briefings",
+        searchKeywordLabel: "Keyword or Category",
+        searchPlaceholder: "e.g. MMM, Lift, iOS...",
+        searchGoBtn: "Go",
+        searchResultsFor: 'Search Results for: "{query}"',
+        matchesFound: "{count} Matches Found",
+        noSearchResults: "No articles matched your search query. Please try different keywords."
     },
     zh: {
         home: "首页",
@@ -1044,6 +1051,19 @@ function translateUi() {
     if (footerBottomLinks[1]) footerBottomLinks[1].textContent = dict.termsOfService;
     if (footerBottomLinks[2]) footerBottomLinks[2].textContent = dict.cookiePreferences;
     
+    // Search Modal translation
+    const searchModalTitle = document.querySelector("#modal-search .modal-title");
+    if (searchModalTitle) searchModalTitle.textContent = dict.searchBriefingsTitle;
+    
+    const searchKeywordLabel = document.querySelector("#modal-search label");
+    if (searchKeywordLabel) searchKeywordLabel.textContent = dict.searchKeywordLabel;
+    
+    const searchInputField = document.getElementById("search-input-field");
+    if (searchInputField) searchInputField.placeholder = dict.searchPlaceholder;
+    
+    const searchGoBtn = document.querySelector("#modal-search .form-submit-btn");
+    if (searchGoBtn) searchGoBtn.textContent = dict.searchGoBtn;
+
     // Language select dropdown synchronizer
     const langSelect = document.getElementById("lang-select");
     if (langSelect) {
@@ -1745,27 +1765,32 @@ function setupModalControllers() {
 // Render Search Results
 function renderSearchResults(query) {
     const mainEl = document.getElementById("main-viewport");
+    const dict = LANG_DICT[State.language];
     
-    const results = ARTICLES.filter(art => 
+    const results = ARTICLES.map(getLocalizedArticle).filter(art => 
         art.title.toLowerCase().includes(query) || 
         art.excerpt.toLowerCase().includes(query) || 
-        art.category.toLowerCase().includes(query)
+        art.category.toLowerCase().includes(query) ||
+        (art.body && art.body.toLowerCase().includes(query))
     );
+    
+    const headerTitle = dict.searchResultsFor.replace("{query}", query);
+    const matchesSubtitle = dict.matchesFound.replace("{count}", results.length);
     
     let html = `
         <div class="saved-view">
             <div class="saved-header">
-                <h1>Search Results for: "${query}"</h1>
+                <h1>${headerTitle}</h1>
                 <span style="font-size: 0.85rem; color: var(--text-tertiary); font-weight: 500;">
-                    ${results.length} Matches Found
+                    ${matchesSubtitle}
                 </span>
             </div>
             
             ${results.length === 0 ? `
                 <div class="saved-empty">
                     <div class="saved-empty-icon"><i class="fas fa-search"></i></div>
-                    <p>No articles matched your search query. Please try different keywords.</p>
-                    <a href="#home" style="color: var(--accent-gold); text-decoration: underline; margin-top: 15px; display: inline-block;">Return Home</a>
+                    <p>${dict.noSearchResults}</p>
+                    <a href="#home" style="color: var(--accent-gold); text-decoration: underline; margin-top: 15px; display: inline-block;">${dict.returnHome}</a>
                 </div>
             ` : `
                 <div class="saved-list">
@@ -1778,8 +1803,8 @@ function renderSearchResults(query) {
                                 <span class="saved-item-cat">${art.category}</span>
                                 <a href="#article/${art.id}"><h3 class="saved-item-title">${art.title}</h3></a>
                                 <div class="saved-item-meta">
-                                    <span>By ${art.author}</span> &bull; <span>${art.date}</span> &bull; <span>${art.readTime}</span>
-                                    ${art.isPremium ? '<span style="color: var(--accent-gold); margin-left: 8px; font-weight:700;">[MEMBER-ONLY]</span>' : ''}
+                                    <span>${State.language === 'zh' ? '作者' : 'By'} ${art.author}</span> &bull; <span>${art.date}</span> &bull; <span>${art.readTime}</span>
+                                    ${art.isPremium ? `<span style="color: var(--accent-gold); margin-left: 8px; font-weight:700;">${State.language === 'zh' ? '[会员专享]' : '[MEMBER-ONLY]'}</span>` : ''}
                                 </div>
                             </div>
                             <button class="btn-bookmark-toggle ${State.isBookmarked(art.id) ? 'active' : ''}" 
