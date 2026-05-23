@@ -1,6 +1,6 @@
 /*
 ================================================================================
-   EUPHO BY Z - CORE APPLICATION SCRIPT
+   MEDIA METRIC - CORE APPLICATION SCRIPT
    Features: Hash Router, Mock Database, State Controller, Interactive Analytics Charts
 ================================================================================
 */
@@ -689,7 +689,7 @@ function renderArticleDetail(id) {
                         </div>
                         <h3 class="paywall-title">Unlock Premium Insights</h3>
                         <p class="paywall-desc">
-                            This analysis is exclusive to <b>eupho by Z Professional Members</b>. Get unlimited access to comprehensive marketing attribution audits, Media Mix Modeling studies, and industry benchmarks.
+                            This analysis is exclusive to <b>Media Metric Professional Members</b>. Get unlimited access to comprehensive marketing attribution audits, Media Mix Modeling studies, and industry benchmarks.
                         </p>
                         <ul class="paywall-benefits">
                             <li><i class="fas fa-check-circle" style="color: var(--accent-gold);"></i> Full access to all editorial content</li>
@@ -1187,7 +1187,7 @@ function setupModalControllers() {
         State.login(email);
         State.subscribe();
         closeAllModals();
-        alert(`Success! Thank you for subscribing to eupho by Z Professional! Your premium insights are now unlocked.`);
+        alert(`Success! Thank you for subscribing to Media Metric Professional! Your premium insights are now unlocked.`);
     });
     
     // Advanced Search modal triggers
