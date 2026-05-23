@@ -597,7 +597,9 @@ const LANG_DICT = {
         clearAll: "Clear All",
         noSaved: "No saved articles yet. Bookmark articles from the home feed or read views.",
         returnHome: "Return Home",
-        removeBookmark: "Remove Bookmark"
+        removeBookmark: "Remove Bookmark",
+        brandTitle: "MEDIA METRIC",
+        footerDesc: "Media Metric is a premium B2B editorial service providing advanced diagnostic insights and operational reports on ad technology, measurement modeling, privacy regulations, and retail media network convergence."
     },
     zh: {
         home: "首页",
@@ -611,7 +613,7 @@ const LANG_DICT = {
         mostPopular: "最受欢迎",
         liveIndex: "实时指数:",
         attributionVariance: "归因偏差 32% (稳定)",
-        copyright: "© 2026 媒体矩阵。版权所有。B2B 媒体集团注册商标。",
+        copyright: "© 2026 媒体财经。版权所有。B2B 媒体集团注册商标。",
         privacyPolicy: "隐私政策",
         termsOfService: "服务条款",
         cookiePreferences: "Cookie 偏好设置",
@@ -626,7 +628,9 @@ const LANG_DICT = {
         clearAll: "清空全部",
         noSaved: "暂无收藏文章。请从主页或阅读视图中收藏文章。",
         returnHome: "返回首页",
-        removeBookmark: "移除收藏"
+        removeBookmark: "移除收藏",
+        brandTitle: "媒体财经",
+        footerDesc: "媒体财经是一家领先的 B2B 媒体平台，提供广告技术、度量建模、隐私法规和零售媒体网络融合等领域的前沿诊断洞察和运营报告。"
     }
 };
 
@@ -789,6 +793,23 @@ function translateUi() {
     const lang = State.language;
     const dict = LANG_DICT[lang];
     
+    // Document Title
+    document.title = lang === 'zh' ? "媒体财经 | 营销度量与归因洞察" : "Media Metric | Marketing Measurement & Attribution Intelligence";
+
+    // Brand Logo & Title
+    const brandTitleEl = document.querySelector(".brand-title");
+    if (brandTitleEl) brandTitleEl.textContent = dict.brandTitle;
+
+    const brandLogoImg = document.querySelector(".brand-logo-image");
+    if (brandLogoImg) brandLogoImg.alt = lang === 'zh' ? "媒体财经徽标" : "Media Metric Logo";
+
+    // Footer Logo & Description
+    const footerLogoEl = document.querySelector(".footer-logo");
+    if (footerLogoEl) footerLogoEl.textContent = dict.brandTitle;
+
+    const footerDescEl = document.querySelector(".footer-desc");
+    if (footerDescEl) footerDescEl.textContent = dict.footerDesc;
+
     // Top Bar Ticker
     const liveTickerSpan = document.querySelector(".live-ticker + span");
     if (liveTickerSpan) {
