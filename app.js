@@ -641,7 +641,7 @@ function renderArticleDetail(id) {
         return;
     }
     
-    const isLocked = article.isPremium && !State.user.isSubscribed;
+    const isLocked = false;
     
     let html = `
         <article class="article-detail">
