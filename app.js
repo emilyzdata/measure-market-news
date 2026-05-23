@@ -610,7 +610,11 @@ async function sendNewsletterViaResend(subject, htmlBody, subscribers, resendApi
                 html: htmlBody
             };
 
-            const response = await fetch("https://api.resend.com/emails", {
+            // Use corsproxy.io as a client-side CORS proxy since Resend API blocks direct browser calls (CORS)
+            const targetUrl = "https://api.resend.com/emails";
+            const proxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`;
+
+            const response = await fetch(proxyUrl, {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${resendApiKey}`,
@@ -622,9 +626,10 @@ async function sendNewsletterViaResend(subject, htmlBody, subscribers, resendApi
             if (response.ok) {
                 successCount++;
             } else {
-                const errJson = await response.json();
+                const errJson = await response.json().catch(() => ({}));
                 failCount++;
-                errors.push(`${sub.email}: ${errJson.message || 'Error'}`);
+                const errMsg = errJson.message || `HTTP ${response.status} Error`;
+                errors.push(`${sub.email}: ${errMsg}`);
             }
         } catch (e) {
             failCount++;
@@ -840,6 +845,81 @@ const ARTICLE_TRANSLATIONS = {
         `
     }
 };
+
+const ADMIN_LANG = {
+    en: {
+        adminTitle: "Media Metric Portal Admin",
+        backHome: "Back to Home",
+        subscribersList: "Subscriber List",
+        exportCsv: "Export CSV",
+        searchSubscribers: "Search subscribers...",
+        joinedTime: "Joined Time",
+        emailAddress: "Email Address",
+        language: "Language",
+        status: "Status",
+        noSubscribers: "No subscribers found.",
+        tabEn: "English Briefing (EN)",
+        tabZh: "Chinese Briefing (ZH)",
+        subjectEnPlaceholder: "Media Metric Weekly Briefing: Attribution, Modeling, and Data Intelligence",
+        subjectZhPlaceholder: "媒体财经每周简报：广告技术与度量创新",
+        tipsTitle: "Bilingual Distribution Mechanism (Bilingual Routing):",
+        tipsDesc1: "Method 1 (Resend Smart Send): The system automatically identifies the registration language of each subscriber (EN or ZH) and sends the corresponding briefing to their email!",
+        tipsDesc2: "Method 2 (Local BCC Send): Since local clients can only send a single template at a time, click 'Local Send BCC (EN)' or 'Local Send BCC (ZH)' as needed.",
+        sendTest: "Send Test Email",
+        resendSmart: "Resend Smart Bulk Send",
+        sendBccEn: "Local BCC Send (EN)",
+        sendBccZh: "Local BCC Send (ZH)",
+        saveKeySuccess: "Resend API Key saved successfully!",
+        exportEmpty: "No subscribers to export.",
+        fillEnSubjectContent: "Please fill in the English briefing subject and content!",
+        fillZhSubjectContent: "Please fill in the Chinese briefing subject and content!",
+        inputTestEmail: "Enter test recipient email address:",
+        sendTestSuccess: "Test email sent successfully to",
+        sendTestFail: "Failed to send test email:",
+        noTargets: "No subscribers with this language preference found.",
+        resendConfirm: "You are about to use Resend Smart Bulk Send to deliver newsletters to {count} subscribers. ZH subscribers will receive Chinese, others will receive English. Continue?",
+        resendComplete: "Smart bulk send completed!",
+        resendSuccessCount: "Sent successfully",
+        resendFailCount: "Failed to send"
+    },
+    zh: {
+        adminTitle: "媒体财经后台管理 (Admin)",
+        backHome: "返回首页",
+        subscribersList: "订阅用户列表",
+        exportCsv: "导出 CSV",
+        searchSubscribers: "搜索订阅邮箱...",
+        joinedTime: "加入时间",
+        emailAddress: "邮箱地址",
+        language: "语言偏好",
+        status: "状态",
+        noSubscribers: "暂无订阅用户",
+        tabEn: "英文简报 (EN)",
+        tabZh: "中文简报 (ZH)",
+        subjectEnPlaceholder: "Media Metric Weekly Briefing: Attribution, Modeling, and Data Intelligence",
+        subjectZhPlaceholder: "媒体财经每周简报：广告技术与度量创新",
+        tipsTitle: "多语言分发机制 (Bilingual Routing)：",
+        tipsDesc1: "方式一 (Resend 智能群发)：系统会自动识别每位订阅者的注册语言（EN 或 ZH），并将对应的英文或中文简报投递到其邮箱中！",
+        tipsDesc2: "方式二 (本地 BCC 群发)：由于本地客户端每次只能发送单个模板，请根据需要分别点击底部的“本地群发 (英文版)”或“本地群发 (中文版)”。",
+        sendTest: "发送当前测试",
+        resendSmart: "Resend 智能群发",
+        sendBccEn: "本地群发 (英文版)",
+        sendBccZh: "本地群发 (中文版)",
+        saveKeySuccess: "Resend API Key 保存成功！",
+        exportEmpty: "暂无可导出的订阅用户。",
+        fillEnSubjectContent: "请填写英文版简报的主题和内容！",
+        fillZhSubjectContent: "请填写中文版简报的主题和内容！",
+        inputTestEmail: "请输入接收测试的邮箱：",
+        sendTestSuccess: "测试邮件成功发送至",
+        sendTestFail: "发送测试失败：",
+        noTargets: "没有该语言偏好的订阅者，无法发送。",
+        resendConfirm: "您将使用 Resend 智能群发功能向 {count} 名订阅者推送简报。订阅 ZH 的用户将收到中文简报，其余用户将收到英文简报。确定继续吗？",
+        resendComplete: "智能群发完成！",
+        resendSuccessCount: "成功投递",
+        resendFailCount: "发送失败"
+    }
+};
+
+
 
 function getLocalizedArticle(art) {
     if (!art) return art;
@@ -1794,50 +1874,51 @@ const DEFAULT_NEWSLETTER_ZH = `<div style="font-family: 'Helvetica Neue', Helvet
     </div>
 </div>`;
 
-async function renderAdmin() {
+  async function renderAdmin() {
     const mainEl = document.getElementById("main-viewport");
     const subscribers = await getSubscribers();
+    const dict = ADMIN_LANG[State.language];
     
     let keySaved = localStorage.getItem("resend_api_key") || "";
     
     let html = `
         <div class="admin-container">
             <header class="admin-header">
-                <h1 class="admin-title">媒体财经后台管理 (Admin)</h1>
-                <a href="#home" class="admin-btn admin-btn-secondary"><i class="fas fa-home"></i> 返回首页</a>
+                <h1 class="admin-title">${dict.adminTitle}</h1>
+                <a href="#home" class="admin-btn admin-btn-secondary"><i class="fas fa-home"></i> ${dict.backHome}</a>
             </header>
             
             <div class="admin-grid">
                 <!-- Left Card: Subscribers List -->
                 <div class="admin-card">
                     <div class="admin-card-title">
-                        <span>订阅用户列表 (${subscribers.length})</span>
+                        <span>${dict.subscribersList} (${subscribers.length})</span>
                         <button id="admin-export-csv" class="admin-btn admin-btn-secondary" style="font-size: 0.65rem; padding: 4px 8px;">
-                            <i class="fas fa-file-export"></i> 导出 CSV
+                            <i class="fas fa-file-export"></i> ${dict.exportCsv}
                         </button>
                     </div>
                     
                     <div class="admin-input-group" style="margin-bottom: 12px;">
-                        <input type="text" id="subscriber-search" class="admin-input" placeholder="搜索订阅邮箱...">
+                        <input type="text" id="subscriber-search" class="admin-input" placeholder="${dict.searchSubscribers}">
                     </div>
                     
                     <div class="subscribers-table-container">
                         <table class="subscribers-table" id="subscribers-table">
                             <thead>
                                 <tr>
-                                    <th>加入时间</th>
-                                    <th>邮箱地址</th>
-                                    <th>语言偏好</th>
-                                    <th>状态</th>
+                                    <th>${dict.joinedTime}</th>
+                                    <th>${dict.emailAddress}</th>
+                                    <th>${dict.language}</th>
+                                    <th>${dict.status}</th>
                                 </tr>
                             </thead>
                             <tbody id="subscribers-list-tbody">
                                 ${subscribers.length === 0 ? `
                                     <tr>
-                                        <td colspan="4" style="text-align: center; color: var(--text-tertiary); padding: 30px;">暂无订阅用户</td>
+                                        <td colspan="4" style="text-align: center; color: var(--text-tertiary); padding: 30px;">${dict.noSubscribers}</td>
                                     </tr>
                                 ` : subscribers.map(sub => {
-                                    const date = new Date(sub.created_at).toLocaleDateString('zh-CN', {
+                                    const date = new Date(sub.created_at).toLocaleDateString(State.language === 'zh' ? 'zh-CN' : 'en-US', {
                                         year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute:'2-digit'
                                     });
                                     return `
@@ -1856,17 +1937,17 @@ async function renderAdmin() {
                 
                 <!-- Right Card: Newsletter Composer -->
                 <div class="admin-card">
-                    <div class="admin-card-title">邮件群发与测试</div>
+                    <div class="admin-card-title">${dict.emailCampaigns}</div>
                     
                     <!-- Resend API Key Config -->
                     <div class="admin-input-group" style="background-color: var(--bg-primary); padding: 12px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-light); margin-bottom: 20px;">
                         <label class="admin-label" style="display: flex; justify-content: space-between;">
-                            <span>Resend API Key (存本地)</span>
-                            <a href="https://resend.com" target="_blank" style="color: var(--accent-gold); text-decoration: underline; text-transform: none; font-weight: normal;">免费获取 Resend Key</a>
+                            <span>${dict.resendKeyLocal}</span>
+                            <a href="https://resend.com" target="_blank" style="color: var(--accent-gold); text-decoration: underline; text-transform: none; font-weight: normal;">${dict.getFreeKey}</a>
                         </label>
                         <div style="display: flex; gap: 8px;">
                             <input type="password" id="resend-api-key" class="admin-input" placeholder="re_123456789..." value="${keySaved}">
-                            <button id="btn-save-key" class="admin-btn">保存</button>
+                            <button id="btn-save-key" class="admin-btn">${dict.saveBtn}</button>
                         </div>
                     </div>
                     
@@ -1874,10 +1955,10 @@ async function renderAdmin() {
                         <!-- Language Tabs -->
                         <div style="display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
                             <button type="button" id="tab-en-btn" class="admin-btn" style="flex: 1; padding: 6px; font-size: 0.7rem; border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0; background-color: var(--text-primary); color: var(--bg-primary);">
-                                <i class="fas fa-globe-americas"></i> 英文简报 (EN)
+                                <i class="fas fa-globe-americas"></i> ${dict.tabEn}
                             </button>
                             <button type="button" id="tab-zh-btn" class="admin-btn admin-btn-secondary" style="flex: 1; padding: 6px; font-size: 0.7rem; border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;">
-                                <i class="fas fa-globe-asia"></i> 中文简报 (ZH)
+                                <i class="fas fa-globe-asia"></i> ${dict.tabZh}
                             </button>
                         </div>
                         
@@ -1885,7 +1966,7 @@ async function renderAdmin() {
                         <div id="content-area-en">
                             <div class="admin-input-group">
                                 <label class="admin-label">English Subject</label>
-                                <input type="text" id="email-subject-en" class="admin-input" placeholder="Media Metric Weekly Briefing: Attribution, Modeling, and Data Intelligence" value="Media Metric Weekly Briefing: Attribution, Modeling, and Data Intelligence" required>
+                                <input type="text" id="email-subject-en" class="admin-input" placeholder="${dict.subjectEnPlaceholder}" value="${dict.subjectEnPlaceholder}" required>
                             </div>
                             <div class="admin-input-group">
                                 <label class="admin-label">English Body (HTML)</label>
@@ -1897,7 +1978,7 @@ async function renderAdmin() {
                         <div id="content-area-zh" style="display: none;">
                             <div class="admin-input-group">
                                 <label class="admin-label">中文简报主题</label>
-                                <input type="text" id="email-subject-zh" class="admin-input" placeholder="媒体财经每周简报：广告技术与度量创新" value="媒体财经每周简报：广告技术与度量创新">
+                                <input type="text" id="email-subject-zh" class="admin-input" placeholder="${dict.subjectZhPlaceholder}" value="${dict.subjectZhPlaceholder}">
                             </div>
                             <div class="admin-input-group">
                                 <label class="admin-label">中文简报内容 (HTML)</label>
@@ -1906,23 +1987,23 @@ async function renderAdmin() {
                         </div>
                         
                         <div class="admin-tip-box">
-                            <strong>多语言分发机制 (Bilingual Routing)：</strong><br>
-                            - <strong>方式一 (Resend 智能群发)</strong>：系统会自动识别每位订阅者的注册语言（EN 或 ZH），并将对应的英文或中文简报投递到其邮箱中！<br>
-                            - <strong>方式二 (本地 BCC 群发)</strong>：由于本地客户端每次只能发送单个模板，请根据需要分别点击底部的“本地群发 (英文版)”或“本地群发 (中文版)”。
+                            <strong>${dict.tipsTitle}</strong><br>
+                            - <strong>${State.language === 'zh' ? '方式一' : 'Method 1'}</strong>：${dict.tipsDesc1}<br>
+                            - <strong>${State.language === 'zh' ? '方式二' : 'Method 2'}</strong>：${dict.tipsDesc2}
                         </div>
                         
                         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                             <button type="button" id="btn-send-test" class="admin-btn admin-btn-secondary" style="padding: 8px 12px;">
-                                <i class="fas fa-paper-plane"></i> 发送当前测试
+                                <i class="fas fa-paper-plane"></i> ${dict.sendTest}
                             </button>
                             <button type="submit" id="btn-send-resend" class="admin-btn" style="padding: 8px 12px;">
-                                <i class="fas fa-paper-plane"></i> Resend 智能群发
+                                <i class="fas fa-paper-plane"></i> ${dict.resendSmart}
                             </button>
                             <button type="button" id="btn-send-mailto-en" class="admin-btn admin-btn-secondary" style="padding: 8px 12px; font-size: 0.65rem;">
-                                <i class="fas fa-envelope"></i> 本地群发 (英文版)
+                                <i class="fas fa-envelope"></i> ${dict.sendBccEn}
                             </button>
                             <button type="button" id="btn-send-mailto-zh" class="admin-btn admin-btn-secondary" style="padding: 8px 12px; font-size: 0.65rem;">
-                                <i class="fas fa-envelope"></i> 本地群发 (中文版)
+                                <i class="fas fa-envelope"></i> ${dict.sendBccZh}
                             </button>
                         </div>
                     </form>
@@ -1940,9 +2021,9 @@ async function renderAdmin() {
     // Attach Admin View Listeners
     attachAdminEventListeners(subscribers);
 }
-
 function attachAdminEventListeners(subscribers) {
     let activeTab = "en"; // track active tab: 'en' or 'zh'
+    const dict = ADMIN_LANG[State.language];
 
     // Tab Switch Listeners
     const tabEnBtn = document.getElementById("tab-en-btn");
@@ -1985,17 +2066,17 @@ function attachAdminEventListeners(subscribers) {
     saveKeyBtn?.addEventListener("click", () => {
         const keyVal = document.getElementById("resend-api-key").value.trim();
         localStorage.setItem("resend_api_key", keyVal);
-        alert("Resend API Key 保存成功！");
+        alert(dict.saveKeySuccess);
     });
     
     // 3. Export CSV
     const exportBtn = document.getElementById("admin-export-csv");
     exportBtn?.addEventListener("click", () => {
         if (subscribers.length === 0) {
-            alert("没有订阅者数据可供导出。");
+            alert(dict.exportEmpty);
             return;
         }
-        let csvContent = "data:text/csv;charset=utf-8,加入时间,订阅邮箱,语言偏好,状态\n";
+        let csvContent = `data:text/csv;charset=utf-8,${dict.joinedTime},${dict.emailAddress},${dict.language},${dict.status}\n`;
         subscribers.forEach(sub => {
             csvContent += `"${sub.created_at}","${sub.email}","${sub.language}","${sub.status}"\n`;
         });
@@ -2016,36 +2097,36 @@ function attachAdminEventListeners(subscribers) {
         const apiKey = localStorage.getItem("resend_api_key");
         
         if (!apiKey) {
-            alert("请先在上方配置 Resend API Key 才能进行发送测试。");
+            alert(State.language === 'zh' ? "请先在上方配置 Resend API Key 才能进行发送测试。" : "Please configure your Resend API Key first.");
             return;
         }
         if (!subject || !body) {
-            alert("请填写简报主题和邮件内容！");
+            alert(activeTab === "en" ? dict.fillEnSubjectContent : dict.fillZhSubjectContent);
             return;
         }
         
-        let testEmail = State.user.email || prompt("请输入接收测试的邮箱：");
+        let testEmail = State.user.email || prompt(dict.inputTestEmail);
         if (!testEmail) return;
         
         testBtn.disabled = true;
-        testBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 发送中...';
+        testBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (State.language === 'zh' ? '发送中...' : 'Sending...');
         
         const result = await sendNewsletterViaResend(subject, body, [{ email: testEmail }], apiKey);
         
         testBtn.disabled = false;
-        testBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 发送当前测试';
+        testBtn.innerHTML = '<i class="fas fa-paper-plane"></i> ' + dict.sendTest;
         
         if (result.success && result.successCount > 0) {
-            alert(`(${activeTab.toUpperCase()} 版) 测试邮件成功发送至 ${testEmail}！`);
+            alert(`(${activeTab.toUpperCase()} ${State.language === 'zh' ? '版' : 'Version'}) ${dict.sendTestSuccess} ${testEmail}!`);
         } else {
-            alert("发送测试失败：" + (result.errors.join(", ") || "未知原因"));
+            alert(dict.sendTestFail + " " + (result.errors.join(", ") || ""));
         }
     });
 
     // Helper: Trigger mailto BCC for a specific group of subscribers
     function triggerMailto(subject, htmlBody, targetSubscribers) {
         if (targetSubscribers.length === 0) {
-            alert("没有该语言偏好的订阅者，无法发送。");
+            alert(dict.noTargets);
             return;
         }
         
@@ -2066,7 +2147,7 @@ function attachAdminEventListeners(subscribers) {
         const subject = document.getElementById("email-subject-en").value.trim();
         const body = document.getElementById("email-body-en").value.trim();
         if (!subject || !body) {
-            alert("请填写英文版简报的主题和内容！");
+            alert(dict.fillEnSubjectContent);
             return;
         }
         const targets = subscribers.filter(sub => sub.language !== 'zh');
@@ -2079,7 +2160,7 @@ function attachAdminEventListeners(subscribers) {
         const subject = document.getElementById("email-subject-zh").value.trim();
         const body = document.getElementById("email-body-zh").value.trim();
         if (!subject || !body) {
-            alert("请填写中文版简报的主题和内容！");
+            alert(dict.fillZhSubjectContent);
             return;
         }
         const targets = subscribers.filter(sub => sub.language === 'zh');
@@ -2099,21 +2180,22 @@ function attachAdminEventListeners(subscribers) {
         const apiKey = localStorage.getItem("resend_api_key");
         
         if (!apiKey) {
-            alert("请先在上方配置 Resend API Key！");
+            alert(State.language === 'zh' ? "请先在上方配置 Resend API Key！" : "Please configure your Resend API Key first.");
             return;
         }
         if (subscribers.length === 0) {
-            alert("无可用的订阅邮箱。");
+            alert(dict.noSubscribers);
             return;
         }
         
-        if (!confirm(`您将使用 Resend 智能群发功能向 ${subscribers.length} 名订阅者推送简报。订阅 ZH 的用户将收到中文简报，其余用户将收到英文简报。确定继续吗？`)) {
+        const confirmMsg = dict.resendConfirm.replace("{count}", subscribers.length);
+        if (!confirm(confirmMsg)) {
             return;
         }
         
         const sendBtn = document.getElementById("btn-send-resend");
         sendBtn.disabled = true;
-        sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 发送中...';
+        sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (State.language === 'zh' ? '发送中...' : 'Sending...');
         
         const enTargets = subscribers.filter(sub => sub.language !== 'zh');
         const zhTargets = subscribers.filter(sub => sub.language === 'zh');
@@ -2131,7 +2213,7 @@ function attachAdminEventListeners(subscribers) {
                 allErrors = allErrors.concat(enResult.errors);
             } else {
                 totalFail += enTargets.length;
-                allErrors.push("英文群发接口错误: " + enResult.error);
+                allErrors.push("EN mailing error: " + enResult.error);
             }
         }
         
@@ -2144,16 +2226,16 @@ function attachAdminEventListeners(subscribers) {
                 allErrors = allErrors.concat(zhResult.errors);
             } else {
                 totalFail += zhTargets.length;
-                allErrors.push("中文群发接口错误: " + zhResult.error);
+                allErrors.push("ZH mailing error: " + zhResult.error);
             }
         }
         
         sendBtn.disabled = false;
-        sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Resend 智能群发';
+        sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> ' + dict.resendSmart;
         
-        alert(`智能群发完成！\n成功投递：${totalSuccess} 封\n发送失败：${totalFail} 封`);
+        alert(`${dict.resendComplete}\n${dict.resendSuccessCount}：${totalSuccess} 封\n${dict.resendFailCount}：${totalFail} 封`);
         if (allErrors.length > 0) {
-            console.error("智能群发投递错误日志:", allErrors);
+            console.error("Mailing error log:", allErrors);
         }
     });
 }
