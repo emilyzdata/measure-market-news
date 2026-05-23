@@ -581,16 +581,6 @@ function getHomeStructureHtml() {
             <!-- Right Column: Insights & Widgets -->
             <aside class="col-insights">
                 
-                <!-- Newsletter Signup -->
-                <div class="newsletter-box">
-                    <h3 class="newsletter-title">The Daily Attribution</h3>
-                    <p class="newsletter-desc">Join 45,000+ CMOs, analysts, and advertisers. Get marketing measurement insight delivered direct to your inbox.</p>
-                    <form id="newsletter-form" class="newsletter-input-group">
-                        <input type="email" class="newsletter-input" placeholder="Work email address" required>
-                        <button type="submit" class="btn-newsletter-submit">Subscribe Now</button>
-                    </form>
-                </div>
-                
                 <!-- Most Read List -->
                 <div class="widget-box">
                     <h3 class="section-sidebar-title" style="border-bottom: 1px solid var(--border-color); padding-bottom: 6px;">MOST POPULAR</h3>
@@ -1036,13 +1026,7 @@ function attachHomeEventListeners() {
         });
     });
     
-    // Newsletter Submit
-    document.getElementById("newsletter-form")?.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const email = e.target.querySelector("input").value;
-        alert(`Thank you! Subscription confirmed for: ${email}. You have signed up for the Daily Attribution Newsletter.`);
-        e.target.reset();
-    });
+
 }
 
 // --- 5. MODAL WORKFLOW CONTROLLERS ---
