@@ -970,9 +970,16 @@ body.dark-theme .newsletter-box {
     color: var(--text-secondary);
 }
 
-.article-content ul, .article-content ol {
+.article-content ul {
     margin-bottom: 18px;
     padding-left: 20px;
+    list-style-type: disc;
+}
+
+.article-content ol {
+    margin-bottom: 18px;
+    padding-left: 20px;
+    list-style-type: decimal;
 }
 
 .article-content li {
