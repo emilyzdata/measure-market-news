@@ -234,40 +234,51 @@ main {
 /* Masthead / Brand Section */
 .brand-section {
     background-color: var(--bg-primary);
-    padding: 20px 0 10px 0;
+    padding: 30px 0 10px 0;
     text-align: center;
 }
 
+.brand-logo-link {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 5px;
+}
+
+.brand-logo-image {
+    height: 70px; /* Elegant height like Into The Gloss symbol */
+    width: auto;
+    border: none !important;
+    background: transparent;
+    transition: var(--transition-smooth);
+}
+
+body.dark-theme .brand-logo-image {
+    filter: invert(1);
+}
+
 .brand-title {
-    font-family: var(--font-gothic);
-    font-weight: 300;
-    font-size: 3.2rem;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 1.15rem;
     line-height: 1;
     color: var(--text-primary);
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    padding: 10px 0 5px 0;
-}
-
-.brand-title span {
-    font-size: 0.4em;
-    font-family: var(--font-serif);
-    font-weight: 300;
-    font-style: italic;
-    color: var(--text-tertiary);
-    margin-left: 8px;
-    text-transform: none;
-    vertical-align: middle;
+    letter-spacing: 0.28em;
+    padding: 0;
+    margin: 0;
 }
 
 .brand-tagline {
     font-family: var(--font-sans);
-    font-size: 0.72rem;
-    font-weight: 600;
+    font-size: 0.65rem;
+    font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.18em;
     color: var(--text-tertiary);
-    margin-top: 8px;
+    margin-top: 6px;
 }
 
 /* Luxury Editorial Masthead Meta Info */
@@ -1859,7 +1870,12 @@ footer {
     }
     
     .brand-title {
-        font-size: 2.8rem;
+        font-size: 1rem;
+        letter-spacing: 0.2em;
+    }
+    
+    .brand-logo-image {
+        height: 50px;
     }
     
     .main-nav-inner {
