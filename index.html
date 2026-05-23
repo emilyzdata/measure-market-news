@@ -34,18 +34,6 @@
                 <button id="theme-toggle" class="btn-theme-toggle" aria-label="Toggle Dark Mode">
                     <i class="fas fa-moon"></i> Dark Mode
                 </button>
-                <span id="top-header-right-separator">|</span>
-                <span id="header-user-info" style="display: none; font-weight: 600; color: var(--accent-gold);"></span>
-                <span id="header-user-badge" style="display: none;"></span>
-                <button id="header-login-btn" class="btn-login" aria-label="Login">
-                    <i class="far fa-user"></i> Sign In
-                </button>
-                <button id="header-logout-btn" class="btn-logout" style="display: none;" aria-label="Log Out">
-                    <i class="fas fa-sign-out-alt"></i> Sign Out
-                </button>
-                <button id="header-subscribe-btn" class="btn-subscribe" aria-label="Subscribe">
-                    Subscribe
-                </button>
             </div>
         </div>
     </header>
@@ -135,8 +123,8 @@
                     <ul class="footer-col-links">
                         <li><a href="#">About Us</a></li>
                         <li><a href="#">Editorial Team</a></li>
-                        <li><a href="#">Memberships</a></li>
-                        <li><a href="#">Corporate Licensing</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Press Center</a></li>
                         <li><a href="#">Contact Support</a></li>
                     </ul>
                 </div>
@@ -176,96 +164,7 @@
         </div>
     </div>
 
-    <!-- Login Modal -->
-    <div class="modal-overlay" id="modal-login">
-        <div class="modal-window">
-            <div class="modal-header">
-                <h3 class="modal-title">Sign In to Your Account</h3>
-                <button class="btn-close-modal" aria-label="Close modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="login-modal-form">
-                    <div class="form-group">
-                        <label for="login-email">Email Address</label>
-                        <input type="email" id="login-email" class="form-input" placeholder="name@company.com" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="login-password">Password</label>
-                        <input type="password" id="login-password" class="form-input" placeholder="••••••••" required>
-                    </div>
-                    <button type="submit" class="form-submit-btn">Sign In</button>
-                </form>
-                <div class="modal-footer-link">
-                    Don't have an account? <span onclick="closeAllModals(); openSubscriptionModal();">Subscribe Now</span>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Subscription Modal -->
-    <div class="modal-overlay" id="modal-subscribe">
-        <div class="modal-window" style="max-width: 520px;">
-            <div class="modal-header">
-                <h3 class="modal-title">Select Membership Plan</h3>
-                <button class="btn-close-modal" aria-label="Close modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="subscribe-modal-form">
-                    <div class="membership-plans-selector">
-                        <div class="plan-option selected" onclick="document.getElementById('plan-pro').click();">
-                            <div class="plan-option-left">
-                                <input type="radio" name="plan" id="plan-pro" checked style="display:none;">
-                                <div class="plan-radio"></div>
-                                <div class="plan-info">
-                                    <span class="plan-title">Professional (Individual)</span>
-                                    <span class="plan-desc">Full access to articles & benchmark tools</span>
-                                </div>
-                            </div>
-                            <span class="plan-price">$29<span style="font-size:0.65rem; font-weight:500;">/mo</span></span>
-                        </div>
-                        
-                        <div class="plan-option" onclick="document.getElementById('plan-corp').click();">
-                            <div class="plan-option-left">
-                                <input type="radio" name="plan" id="plan-corp" style="display:none;">
-                                <div class="plan-radio"></div>
-                                <div class="plan-info">
-                                    <span class="plan-title">Enterprise License</span>
-                                    <span class="plan-desc">For teams, custom clean rooms, priority support</span>
-                                </div>
-                            </div>
-                            <span class="plan-price">$120<span style="font-size:0.65rem; font-weight:500;">/mo</span></span>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="sub-email">Email Address</label>
-                        <input type="email" id="sub-email" class="form-input" placeholder="name@company.com" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="sub-card">Credit Card Number</label>
-                        <input type="text" id="sub-card" class="form-input" placeholder="4111 2222 3333 4444" required>
-                    </div>
-                    
-                    <div style="display: flex; gap: 15px;">
-                        <div class="form-group" style="flex: 1; margin-bottom: 8px;">
-                            <label for="sub-exp">Expiry</label>
-                            <input type="text" id="sub-exp" class="form-input" placeholder="MM/YY" required>
-                        </div>
-                        <div class="form-group" style="flex: 1; margin-bottom: 8px;">
-                            <label for="sub-cvv">CVC</label>
-                            <input type="text" id="sub-cvv" class="form-input" placeholder="123" required>
-                        </div>
-                    </div>
-                    
-                    <button type="submit" class="form-submit-btn">Complete checkout &bull; Start Reading</button>
-                </form>
-                <div class="modal-footer-link">
-                    Already have an account? <span onclick="closeAllModals(); openLoginModal();">Sign In</span>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Core App JS -->
     <script src="app.js"></script>

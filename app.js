@@ -1280,16 +1280,6 @@ function attachHomeEventListeners() {
 
 // --- 5. MODAL WORKFLOW CONTROLLERS ---
 
-function openLoginModal() {
-    const modal = document.getElementById("modal-login");
-    modal.classList.add("active");
-}
-
-function openSubscriptionModal() {
-    const modal = document.getElementById("modal-subscribe");
-    modal.classList.add("active");
-}
-
 function closeAllModals() {
     document.querySelectorAll(".modal-overlay").forEach(m => m.classList.remove("active"));
 }
@@ -1304,34 +1294,6 @@ function setupModalControllers() {
         overlay.addEventListener("click", (e) => {
             if (e.target === overlay) closeAllModals();
         });
-    });
-    
-    // Header trigger buttons
-    document.getElementById("header-login-btn")?.addEventListener("click", () => openLoginModal());
-    document.getElementById("header-subscribe-btn")?.addEventListener("click", () => openSubscriptionModal());
-    
-    // Logout button
-    document.getElementById("header-logout-btn")?.addEventListener("click", () => {
-        State.logout();
-    });
-    
-    // Login form submission
-    document.getElementById("login-modal-form")?.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const email = document.getElementById("login-email").value;
-        State.login(email);
-        closeAllModals();
-        alert(`Welcome back, ${email}!`);
-    });
-    
-    // Subscribe form submission
-    document.getElementById("subscribe-modal-form")?.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const email = document.getElementById("sub-email").value;
-        State.login(email);
-        State.subscribe();
-        closeAllModals();
-        alert(`Success! Thank you for subscribing to Media Metric Professional! Your premium insights are now unlocked.`);
     });
     
     // Advanced Search modal triggers
@@ -1418,52 +1380,12 @@ function renderSearchResults(query) {
     });
 }
 
-// --- 6. BRAND HEADER & USER STATE SYNCHRONIZATION ---
 function syncUserStateUI() {
-    const loginBtn = document.getElementById("header-login-btn");
-    const subBtn = document.getElementById("header-subscribe-btn");
-    const logoutBtn = document.getElementById("header-logout-btn");
-    const userInfo = document.getElementById("header-user-info");
-    const userBadge = document.getElementById("header-user-badge");
     const bookmarkCount = document.getElementById("bookmark-count-badge");
     
     // Update bookmark count badge
     if (bookmarkCount) {
         bookmarkCount.textContent = State.bookmarks.length;
-    }
-    
-    // Update theme toggle classes if applicable (already handled by body class)
-    
-    if (State.user.isLoggedIn) {
-        loginBtn.style.display = "none";
-        logoutBtn.style.display = "flex";
-        userInfo.style.display = "flex";
-        userInfo.textContent = State.user.email;
-        
-        if (State.user.isSubscribed) {
-            subBtn.style.display = "none";
-            userBadge.style.display = "inline-block";
-            userBadge.textContent = "Pro Member";
-            userBadge.className = "btn-subscribe";
-            userBadge.style.backgroundColor = "var(--accent-gold)";
-            userBadge.style.color = "#111111";
-        } else {
-            subBtn.style.display = "inline-block";
-            userBadge.style.display = "inline-block";
-            userBadge.textContent = "Free Tier";
-            userBadge.className = "";
-            userBadge.style.backgroundColor = "transparent";
-            userBadge.style.border = "1px solid var(--border-color)";
-            userBadge.style.color = "var(--text-secondary)";
-            userBadge.style.padding = "4px 8px";
-            userBadge.style.borderRadius = "2px";
-        }
-    } else {
-        loginBtn.style.display = "flex";
-        subBtn.style.display = "inline-block";
-        logoutBtn.style.display = "none";
-        userInfo.style.display = "none";
-        userBadge.style.display = "none";
     }
     
     // Re-render current hash view to unlock/lock premium content
