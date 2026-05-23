@@ -431,6 +431,7 @@ const State = {
     },
     bookmarks: [],
     searchQuery: "",
+    language: "en",
     dashboardFilters: {
         privacyImpact: 40,      // % signal loss
         mmmSmoothing: 50,       // % smoothing window
@@ -449,12 +450,18 @@ const State = {
         if (savedBookmarks) {
             this.bookmarks = JSON.parse(savedBookmarks);
         }
+        // Load Language
+        const savedLanguage = localStorage.getItem("mm_language");
+        if (savedLanguage) {
+            this.language = savedLanguage;
+        }
     },
     
     // Save state changes
     save() {
         localStorage.setItem("mm_user", JSON.stringify(this.user));
         localStorage.setItem("mm_bookmarks", JSON.stringify(this.bookmarks));
+        localStorage.setItem("mm_language", this.language);
         
         // Dispatch event for UI updates
         window.dispatchEvent(new Event("statechange"));
@@ -527,6 +534,331 @@ async function logPageView(path) {
     }
 }
 
+// Initialize State immediately
+State.init();
+
+// Analytics page view logger
+async function logPageView(path) {
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+        console.warn("Supabase credentials not configured. Page views are not being logged.");
+        return;
+    }
+    
+    try {
+        const payload = {
+            path: path,
+            referrer: document.referrer || null,
+            user_agent: navigator.userAgent || null,
+            screen_width: window.innerWidth || null,
+            language: navigator.language || null
+        };
+        
+        await fetch(`${SUPABASE_URL}/rest/v1/page_views`, {
+            method: "POST",
+            headers: {
+                "apikey": SUPABASE_ANON_KEY,
+                "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+                "Content-Type": "application/json",
+                "Prefer": "return=minimal"
+            },
+            body: JSON.stringify(payload)
+        });
+    } catch (err) {
+        console.error("Failed to log page view to Supabase:", err);
+    }
+}
+
+// --- 2.5 BILINGUAL DICTIONARIES & TRANSLATIONS ---
+const LANG_DICT = {
+    en: {
+        home: "Home",
+        attribution: "Attribution & Lift",
+        privacy: "Privacy & Identity",
+        mmm: "Media Mix Modeling",
+        retail: "Retail Media",
+        saved: "Saved",
+        about: "About Us",
+        latestIntel: "LATEST INTEL",
+        mostPopular: "MOST POPULAR",
+        liveIndex: "Live Index:",
+        attributionVariance: "Attribution Variance 32% (Stable)",
+        copyright: "© 2026 Media Metric. All rights reserved. Registered trademark of B2B Media Group.",
+        privacyPolicy: "Privacy Policy",
+        termsOfService: "Terms of Service",
+        cookiePreferences: "Cookie Preferences",
+        savedBriefings: "Saved Briefings",
+        attributionGlossary: "Attribution Glossary",
+        industryEvents: "Industry Events",
+        editorial: "Editorial",
+        resources: "Resources",
+        company: "Company",
+        by: "By",
+        bookmarkedArticles: "Bookmarked Articles",
+        clearAll: "Clear All",
+        noSaved: "No saved articles yet. Bookmark articles from the home feed or read views.",
+        returnHome: "Return Home",
+        removeBookmark: "Remove Bookmark"
+    },
+    zh: {
+        home: "首页",
+        attribution: "归因与提升度",
+        privacy: "隐私与身份识别",
+        mmm: "媒介混合模型",
+        retail: "零售媒体",
+        saved: "已收藏",
+        about: "关于我们",
+        latestIntel: "最新资讯",
+        mostPopular: "最受欢迎",
+        liveIndex: "实时指数:",
+        attributionVariance: "归因偏差 32% (稳定)",
+        copyright: "© 2026 媒体矩阵。版权所有。B2B 媒体集团注册商标。",
+        privacyPolicy: "隐私政策",
+        termsOfService: "服务条款",
+        cookiePreferences: "Cookie 偏好设置",
+        savedBriefings: "已收藏的简报",
+        attributionGlossary: "归因术语表",
+        industryEvents: "行业活动",
+        editorial: "社论分类",
+        resources: "常用资源",
+        company: "公司信息",
+        by: "作者",
+        bookmarkedArticles: "已收藏文章",
+        clearAll: "清空全部",
+        noSaved: "暂无收藏文章。请从主页或阅读视图中收藏文章。",
+        returnHome: "返回首页",
+        removeBookmark: "移除收藏"
+    }
+};
+
+const ARTICLE_TRANSLATIONS = {
+    5: {
+        titleZh: "L线地铁上的《致秋天》：重估浪漫主义诗歌作为通勤族的认知缓冲器",
+        categoryZh: "媒介混合模型",
+        excerptZh: "面对地铁延误和数字信息饱和，通勤族在约翰·济慈的浪漫诗句中找到了意想不到的静心时刻。我们分析了经典文学在地铁车厢中的心理抚慰作用。",
+        bodyZh: `
+            <p>我喜欢在纽约地铁上读诗，看着车窗中闪烁的乘客倒影。在最单调或令人气馁的日子里，正是那种车厢的有节奏律动，以及周围纽约客的陪伴，支撑着我前行。抬头望向拥挤车厢的弧形天花板，我的目光常常落在纽约大都会运输署（MTA）海报上。最近，站在一节拥挤的车厢里，我发现自己正读着约翰·济慈经典之作《致秋天》中饱满、富有质感的诗句。</p>
+            
+            <p><em>“用甜美的果仁；让它们长出更多花蕾，/ 并且不断增加，为蜜蜂带来更迟的花朵，/ 直到它们以为温暖的日子永远不会停止……”</em> 这首诗写于1819年，济慈对丰盈与过渡的田园意象描述，似乎与纽约地铁系统刺眼的荧光灯和冰冷的金属摩擦声相去甚远。然而，对于抓着冰冷金属扶手的通勤族来说，这种强烈的反差带来了一个短暂的认知缓冲——一个在日常奔波中停下脚步、静心思考的片刻。</p>
+            
+            <blockquote>
+                “在日常通勤中邂逅济慈的19世纪浪漫主义犹如一个情绪的定位器，它展现了经典文学如何在人口稠密的都市环境中发挥情感稳定器的作用。”
+            </blockquote>
+            
+            <h2>地铁文学的认知影响</h2>
+            <p>在环境心理学中，交通空间中艺术的存在已知能有效减轻乘客焦虑并改变对乘车时间的感知。为了量化这种效应，数据科学家和研究人员开始整理乘客调查数据，并结合自然语言处理（NLP）技术对MTA历史诗歌档案进行情感分析。当展示像济慈这样富有浪漫感官的诗歌时，语义密度和情绪效价（valence）评分显示出对通勤压力的强大缓冲作用。</p>
+            
+            <h2>NLP画像：济慈 vs. 现代地铁广告</h2>
+            <p>当我们应用文本挖掘模型对比19世纪诗歌与地铁车厢里随处可见的现代商业广告时，结构差异非常显著。商业广告高度依赖祈使动词（“购买”、“下载”、“立即索取”）以及旨在唤起紧迫感的高唤醒情绪触发词。相比之下，济慈的诗句大量使用被动的、感官丰富的形容词（“甜美”、“温和”、“覆满苔藓的”）和描述性名词，从而降低了乘客的认知负荷。</p>
+            
+            <h2>给现代传播者的启示</h2>
+            <p>对于现代营销人员和出版商来说，教训显而易见：在屏幕疲劳的时代，低摩擦、高价值的内容拥有独特的溢价。自1992年开始运行的“地铁诗歌”计划的持久流行，凸显了人类对线下沉思的深层渴望。通过理解这些认知基线，品牌方可以设计出尊重读者心智容量的文案与空间，创造出在通勤结束后依然能长久保留的积极品牌联想。</p>
+        `
+    },
+    7: {
+        titleZh: "用贝叶斯模型重构人际关系：《辛菲尔德》教我们如何解读数据中隐藏的行为信号",
+        categoryZh: "归因与提升度",
+        excerptZh: "杰里、乔治、伊莱恩和克莱默能解释贝叶斯定理吗？我们将先验信念、似然更新和后验关系概率映射到《辛菲尔德》的经典剧集中，将情景喜剧的动态转化为广告归因。",
+        bodyZh: `
+            <p>情景喜剧建立在人际关系的摩擦之上，但很少有像《辛菲尔德》（Seinfeld）那样，将社交偏执和信念更新的机制刻画得如此细致入微。在这部著名的“无事生非”的剧集中，剧情几乎总是围绕着一个核心分析问题展开：给定一组侧面观察结果，角色应该如何更新他们对实际发生的事情的先验信念？无论是乔治试图确定他的老板是否认为他在偷懒，还是杰里在解码他女朋友的笑声是否针对他，角色们都在不断地进行着非正式的、尽管是混乱的贝叶斯推断。</p>
+            
+            <blockquote>
+                “贝叶斯定理不仅适用于概率理论家；它也是辛菲尔德角色在社交偏执中导航的核心数学引擎——也是现代营销人员追踪增量效果的底层逻辑。”
+            </blockquote>
+            
+            <h2>先验、似然与乔治·科斯坦萨的偏执闭环</h2>
+            <p>要理解《辛菲尔德》如何建模人际关系动态，我们必须看看贝叶斯定理的三个组成部分：<strong>先验概率</strong>（*P(H)*）、<strong>似然度</strong>（*P(E|H)*）和<strong>后验概率</strong>（*P(H|E)*）。</p>
+            <p>以乔治·科斯坦萨（George Costanza）为例。乔治对世界的基线先验信念是每个人都在密谋对付他，或者他正处于被揭穿为骗子的边缘。这是一个非常强的先验：*P(Exposed) = 0.8*。当乔治观察到一件证据——比如他的老板在走廊里和同事低声细语时——他必须评估在两种假设下发生此事件的似然度：他们正在讨论他的无能（*H₁*）与讨论普通的办公事务（*H₂*）。由于乔治的偏执，他估计*P(Whispering|H₁)*极高。当他运行公式时，他的后验概率飙升至 *0.99*，从而引发了一场疯狂且完全没有必要的掩盖阴谋。</p>
+            
+            <h2>杰里与伊莱恩：解耦混淆信号</h2>
+            <p>杰里和伊莱恩的关系完美地说明了困扰营销归因的混淆信号。当杰里观察到伊莱恩对他异常好时，是因为她还有余情（*H_romance*），还是仅仅想让他帮忙看管公寓（*H_favor*）？</p>
+            <p>在这里，证据的似然度是被混淆的。伊莱恩的友善（*E*）在这两种假设下都是高度可能的。一个天真的观察者（或最后触点归因模型）可能会将伊莱恩的行为完全归因于浪漫兴趣。然而，贝叶斯方法结合了伊莱恩想要帮忙的先验概率（*P(H_favor) = 0.7*）与伊莱恩想要复合的先验（*P(H_romance) = 0.15*）。一旦将先验融入计算，后验概率就压倒性地倾向于实用的解释。杰里继续留在沙发上，公寓得到了浇水。</p>
+            
+            <h2>从喜剧偏执到现代广告归因</h2>
+            <p>这如何转化为营销科学？在现代广告中，核心问题是相同的：用户购买是因为他们看到了广告（*H_ad*），还是无论如何他们都会购买（*H_organic*）？</p>
+            <p>最后一次点击归因就像乔治·科斯坦萨的偏执：它将所有功劳归因于最后观察到的点击，忽略了用户的先验意图。贝叶斯归因模型（如媒介混合建模中使用的模型）允许我们基于历史自然基线销售设置先验，然后基于在特定广告曝光下转化的似然度更新我们的信念。通过将转化视为一系列更新的后验概率，我们避免了将功劳过度归因于表面的触点，确保广告预算分配到真正驱动增量增长的渠道。</p>
+        `
+    },
+    8: {
+        titleZh: "Labubu 的成名之路：使用谷歌 Meridian 媒介混合模型预测全球销量",
+        categoryZh: "媒介混合模型",
+        excerptZh: "当 Blackpink 的 Lisa 晒出她的 Labubu 钥匙扣照片时，全球需求一夜暴增。我们展示了如何使用谷歌开源的 Meridian 框架对病毒式传播进行建模、设置贝叶斯先验并预测潮流玩具的销量。"
+    },
+    9: {
+        titleZh: "从刷屏到成交：衡量 TikTok 对亚马逊销量的因果影响与光环效应",
+        categoryZh: "零售媒体",
+        excerptZh: "亚马逊与 TikTok 的整合改变了社交电商，但衡量跨平台的光环效应仍是一个巨大挑战。我们拆解了因果推断方法，以衡量 TikTok 对亚马逊销量的真实影响。"
+    },
+    10: {
+        titleZh: "如何在媒介组合中优化网红营销：深挖 Meta 开源的 Robyn 框架",
+        categoryZh: "媒介混合模型",
+        excerptZh: "众所周知，网红营销很难衡量。我们展示了如何利用 Meta 开源的 Robyn MMM 框架，结合 Adstock 衰减和饱和曲线，为 DTC 品牌建模和优化创作者支出。"
+    },
+    11: {
+        titleZh: "全球媒体度量框架：为 Rhode Skin 设计统一的 MMM 与归因引擎",
+        categoryZh: "归因与提升度",
+        excerptZh: "如何衡量一个在全球扩张的超高速增长护肤品牌的营销表现？我们以海莉·比伯的 Rhode Skin 为实操案例，概述了一个结合媒介混合建模和多触点归因的统一量化框架。"
+    },
+    12: {
+        titleZh: "如何量化精品服饰品牌的内衣定价：社交媒体与搜索引导的分析方法",
+        categoryZh: "零售媒体",
+        excerptZh: "精品内衣和泳装市场正在经历结构性转型。像 Cou Cou Intimates、Frankies Bikinis 这样的精品品牌通过将自然社群构建与高端的社论级品牌塑造相结合，成功开辟了高利润的利基市场。我们概述了一个结合社交情感分析和谷歌搜索量的数据驱动框架，用于建模价格弹性和品牌资产。"
+    },
+    13: {
+        titleZh: "统一电视受众度量：《吉尔莫女孩》如何吸引并留住共同收视群体",
+        categoryZh: "归因与提升度",
+        excerptZh: "随着电视格局在传统广播和流媒体之间高度碎片化，衡量共同收视行为至关重要。我们以《吉尔莫女孩》的跨代吸引力为案例，剖析家庭受众动态与统一电视度量框架。"
+    },
+    14: {
+        titleZh: "《亢奋》如何将情感混乱转化为消费经济",
+        categoryZh: "零售媒体",
+        excerptZh: "HBO 剧集《亢奋》的文化足迹远超电视收视率。我们分析了该剧标志性的亮片妆容、高对比度美学如何催化了美妆、时尚和零售消费经济的空前繁荣。",
+        bodyZh: `
+            <p>探讨流媒体、社交媒体和美妆品牌如何将一部电视肥皂剧转化为拥有数十亿浏览量的文化市场的六步分析。</p>
+            
+            <p>当《亢奋》（Euphoria）中闪闪发光的泪水流向全球 TikTok 信息流时，这部剧集就已经超越了精品电视本身。HBO 不仅仅制作了一部热门剧集，更工程化设计了流媒体时代最具商业影响力的青年美学之一。</p>
+            
+            <blockquote>
+                从《亢奋》中诞生的最具价值的商业产品从来不是闪粉眼线笔或水钻眼贴。而是“向往”。
+            </blockquote>
+            
+            <p>在巅峰时期，该剧成为 HBO 仅次于《权力的游戏》的第二大收视率剧集。第二季每集在所有平台上的平均观众达到1630万，而大结局在单晚就吸引了660万观众。HBO 高管后来透露，该剧约80%的收视率来自 HBO Max，这表明流媒体平台（而非传统电视）推动了该剧的文化主导地位。</p>
+            
+            <p>使《亢奋》在经济上强大的不仅仅是观众规模，更是受众行为。该剧在 TikTok、Instagram、Spotify 和 YouTube 上产生了数十亿次的互动，建立了一个将流媒体注意力直接转化为消费需求的庞大生态系统。</p>
+            
+            <p>与传统的电视热门剧集不同，《亢奋》同时扮演着：</p>
+            <ul>
+                <li>流媒体商业的成功范例，</li>
+                <li>美妆流行趋势的发动机，</li>
+                <li>高端时尚的孵化器，</li>
+                <li>以及高互动式的社交媒体经济。</li>
+            </ul>
+            
+            <p>这一商业变现过程主要分为以下六个阶段展开。</p>
+            
+            <h2>第一步：流媒体平台将《亢奋》转化为文化基础设施</h2>
+            <p>在美妆品牌介入之前，流媒体的超大尺度分发在全球范围内创造了极高能见度。通过 HBO Max，该剧在数字生态系统中持续被浏览、裁剪和分享。这使得《亢奋》成为一个平台原生的文化产品，为后续的商业变现奠定了基石。</p>
+            
+            <h2>第二步：媒介创造了可即时复制的视觉美学</h2>
+            <p>一旦建立了可见度，该剧就产生了一种极具商业价值的视觉符号：亮片泪痕、夸张眼线和富有情感隐喻的妆容。在社交媒体上，与剧集相关的标签积累了数百亿次的播放量。在平台经济中，美学往往先于实体产品而流行。</p>
+            
+            <h2>第三步：社交媒体将受众转变为零成本的分发网络</h2>
+            <p>TikTok、Instagram 和 YouTube 上的粉丝开始疯狂模仿剧中的妆容并制作教程。每一名粉丝的翻拍和分享都扮演着免费营销推广的角色，使得粉丝群体转变成为了最强大的分发和推广网络。</p>
+            
+            <h2>第四步：美妆品牌将情感美学转化为具体产品</h2>
+            <p>当剧中的虚拟美学走向现实，商业化动作随之而来。由剧集首席彩妆师 Donni Davy 联合制作的 Half Magic Beauty 品牌，将剧中的亮片、眼线笔和色彩质感完美转化为货架商品，并在发售后实现销量暴增，成功入驻全美零售店。</p>
+            
+            <h2>第五步：快时尚与高端奢侈品的商业交汇</h2>
+            <p>角色的穿搭不仅推动了年轻消费者的跟风抢购，也获得了高端时装屋（如 Miu Miu、Balenciaga 和 Copérni）的青睐。品牌通过借衣和赞助，让主演们在红毯和社交媒体上展示服饰，使剧集成为高端时装与快时尚融合的超级展示台。</p>
+            
+            <h2>第六步：从内容到实体零售的完整闭环</h2>
+            <p>最终，《亢奋》建立了一个从内容创作、社交发酵，到品牌联名和线下购买的完整消费经济闭环，证实了流媒体时代的影视剧集不再只是叙事艺术，还可以是一个价值数十亿美元的消费生态引擎。</p>
+        `
+    }
+};
+
+function getLocalizedArticle(art) {
+    if (!art) return art;
+    const lang = State.language;
+    if (lang === "zh") {
+        const trans = ARTICLE_TRANSLATIONS[art.id];
+        if (trans) {
+            return {
+                ...art,
+                title: trans.titleZh || art.title,
+                category: trans.categoryZh || art.category,
+                excerpt: trans.excerptZh || art.excerpt,
+                body: trans.bodyZh || art.body
+            };
+        }
+    }
+    return art;
+}
+
+function getChineseCategoryName(cat) {
+    switch (cat.toLowerCase()) {
+        case "attribution & lift": return "归因与提升度";
+        case "privacy & identity": return "隐私与身份识别";
+        case "media mix modeling": return "媒介混合模型";
+        case "retail media": return "零售媒体";
+        case "campaign strategy": return "创意策略";
+        default: return cat;
+    }
+}
+
+function translateUi() {
+    const lang = State.language;
+    const dict = LANG_DICT[lang];
+    
+    // Top Bar Ticker
+    const liveTickerSpan = document.querySelector(".live-ticker + span");
+    if (liveTickerSpan) {
+        liveTickerSpan.textContent = dict.attributionVariance;
+    }
+    const liveIndexLabel = document.querySelector(".live-ticker span:nth-child(2)");
+    if (liveIndexLabel) {
+        liveIndexLabel.textContent = dict.liveIndex;
+    }
+    
+    // Header Nav Links
+    const navHome = document.querySelector("#nav-home a");
+    if (navHome) navHome.textContent = dict.home;
+    
+    const navAttribution = document.querySelector("#nav-attribution a");
+    if (navAttribution) navAttribution.textContent = dict.attribution;
+    
+    const navPrivacy = document.querySelector("#nav-privacy a");
+    if (navPrivacy) navPrivacy.textContent = dict.privacy;
+    
+    const navMmm = document.querySelector("#nav-mmm a");
+    if (navMmm) navMmm.textContent = dict.mmm;
+    
+    const navRetail = document.querySelector("#nav-retail a");
+    if (navRetail) navRetail.textContent = dict.retail;
+    
+    const navSaved = document.querySelector("#nav-saved a");
+    if (navSaved) navSaved.textContent = dict.saved;
+    
+    // Footer Titles
+    const footerTitles = document.querySelectorAll(".footer-grid h4");
+    if (footerTitles.length >= 3) {
+        footerTitles[0].textContent = dict.editorial;
+        footerTitles[1].textContent = dict.resources;
+        footerTitles[2].textContent = dict.company;
+    }
+    
+    // Footer Links
+    const footerLinks = document.querySelectorAll(".footer-col-links a");
+    // Editorial section links
+    if (footerLinks[0]) footerLinks[0].textContent = dict.attribution;
+    if (footerLinks[1]) footerLinks[1].textContent = dict.privacy;
+    if (footerLinks[2]) footerLinks[2].textContent = dict.mmm;
+    if (footerLinks[3]) footerLinks[3].textContent = dict.retail;
+    if (footerLinks[4]) footerLinks[4].textContent = lang === 'en' ? "Creative Strategy" : "创意策略";
+    
+    // Resources section links
+    if (footerLinks[5]) footerLinks[5].textContent = dict.savedBriefings;
+    if (footerLinks[6]) footerLinks[6].textContent = dict.attributionGlossary;
+    if (footerLinks[7]) footerLinks[7].textContent = dict.industryEvents;
+    
+    // Company section links
+    if (footerLinks[8]) footerLinks[8].textContent = dict.about;
+    
+    // Footer bottom
+    const footerCopyright = document.querySelector(".footer-bottom p");
+    if (footerCopyright) footerCopyright.textContent = dict.copyright;
+    
+    const footerBottomLinks = document.querySelectorAll(".footer-bottom-links a");
+    if (footerBottomLinks[0]) footerBottomLinks[0].textContent = dict.privacyPolicy;
+    if (footerBottomLinks[1]) footerBottomLinks[1].textContent = dict.termsOfService;
+    if (footerBottomLinks[2]) footerBottomLinks[2].textContent = dict.cookiePreferences;
+    
+    // Language select dropdown synchronizer
+    const langSelect = document.getElementById("lang-select");
+    if (langSelect) {
+        langSelect.value = lang;
+    }
+}
+
 // --- 3. THE LIGHTWEIGHT ROUTER ---
 const Router = {
     routes: {},
@@ -534,6 +866,13 @@ const Router = {
     init() {
         window.addEventListener("hashchange", () => this.handleRoute());
         window.addEventListener("load", () => this.handleRoute());
+        
+        // Bind language select dropdown listener
+        document.getElementById("lang-select")?.addEventListener("change", (e) => {
+            State.language = e.target.value;
+            State.save();
+            this.handleRoute();
+        });
     },
     
     handleRoute() {
@@ -542,6 +881,9 @@ const Router = {
         
         // Log page view to Supabase analytics
         logPageView(hash);
+        
+        // Translate UI
+        translateUi();
         
         // Update nav active states
         document.querySelectorAll(".nav-links li").forEach(li => li.classList.remove("active"));
@@ -598,11 +940,12 @@ const Router = {
 
 // Helper: Wrap layout columns for Homepage
 function getHomeStructureHtml() {
+    const dict = LANG_DICT[State.language];
     return `
         <div class="homepage-grid">
             <!-- Left Column: Briefings -->
             <aside class="col-briefings">
-                <h3 class="section-sidebar-title">LATEST INTEL</h3>
+                <h3 class="section-sidebar-title">${dict.latestIntel}</h3>
                 <div class="briefings-list" id="briefings-container"></div>
             </aside>
             
@@ -614,7 +957,7 @@ function getHomeStructureHtml() {
                 
                 <!-- Most Read List -->
                 <div class="widget-box">
-                    <h3 class="section-sidebar-title" style="border-bottom: 1px solid var(--border-color); padding-bottom: 6px;">MOST POPULAR</h3>
+                    <h3 class="section-sidebar-title" style="border-bottom: 1px solid var(--border-color); padding-bottom: 6px;">${dict.mostPopular}</h3>
                     <div class="most-read-list" id="popular-container"></div>
                 </div>
             </aside>
@@ -630,7 +973,7 @@ function renderHome() {
     // Fill briefings list (Left Column)
     const briefingsContainer = document.getElementById("briefings-container");
     // Sort reverse chronological or custom slicing
-    const briefingArticles = ARTICLES.slice().reverse();
+    const briefingArticles = ARTICLES.slice().reverse().map(getLocalizedArticle);
     briefingsContainer.innerHTML = briefingArticles.map(art => `
         <div class="briefing-item">
             <span class="briefing-category">${art.category}</span>
@@ -643,8 +986,8 @@ function renderHome() {
     const mainArticlesContainer = document.getElementById("main-articles-container");
     
     // Lead featured article
-    const leadArticle = ARTICLES.find(a => a.trending) || ARTICLES[0];
-    const secondaryArticles = ARTICLES.filter(a => a.id !== leadArticle.id);
+    const leadArticle = getLocalizedArticle(ARTICLES.find(a => a.trending) || ARTICLES[0]);
+    const secondaryArticles = ARTICLES.filter(a => a.id !== leadArticle.id).map(getLocalizedArticle);
     
     let centerHtml = `
         <div class="lead-feature">
@@ -659,7 +1002,7 @@ function renderHome() {
             </div>
             <a href="#article/${leadArticle.id}"><h2 class="lead-title">${leadArticle.title}</h2></a>
             <p class="lead-excerpt">${leadArticle.excerpt}</p>
-            <span class="lead-author">By <strong>${leadArticle.author}</strong></span>
+            <span class="lead-author">${State.language === 'zh' ? '作者' : 'By'} <strong>${leadArticle.author}</strong></span>
         </div>
         
         <div class="secondary-articles-grid">
@@ -680,7 +1023,7 @@ function renderHome() {
             <a href="#article/${art.id}"><h3 class="article-title">${art.title}</h3></a>
             <p class="article-excerpt">${art.excerpt}</p>
             <div class="article-card-footer">
-                <span>By ${art.author}</span>
+                <span>${State.language === 'zh' ? '作者' : 'By'} ${art.author}</span>
                 <button class="btn-bookmark-toggle ${State.isBookmarked(art.id) ? 'active' : ''}" 
                         data-id="${art.id}" title="${State.isBookmarked(art.id) ? 'Remove Bookmark' : 'Bookmark Article'}">
                     <i class="${State.isBookmarked(art.id) ? 'fas' : 'far'} fa-bookmark"></i>
@@ -694,7 +1037,7 @@ function renderHome() {
     
     // Fill Popular Articles (Right Column)
     const popularContainer = document.getElementById("popular-container");
-    popularContainer.innerHTML = ARTICLES.slice(0, 4).map((art, idx) => `
+    popularContainer.innerHTML = ARTICLES.slice(0, 4).map(getLocalizedArticle).map((art, idx) => `
         <div class="most-read-item">
             <span class="most-read-number">0${idx + 1}</span>
             <div class="most-read-text">
@@ -711,22 +1054,24 @@ function renderHome() {
 // Render Category View
 function renderCategoryView(category) {
     const mainEl = document.getElementById("main-viewport");
-    const filtered = ARTICLES.filter(art => art.category.toLowerCase() === category.toLowerCase());
+    const filtered = ARTICLES.filter(art => art.category.toLowerCase() === category.toLowerCase()).map(getLocalizedArticle);
+    
+    const dict = LANG_DICT[State.language];
     
     let html = `
         <div class="saved-view">
             <div class="saved-header">
-                <h1>${category} News</h1>
+                <h1>${State.language === 'zh' ? getChineseCategoryName(category) + '新闻' : category + ' News'}</h1>
                 <span style="font-size: 0.85rem; color: var(--text-tertiary); font-weight: 500;">
-                    ${filtered.length} Articles Available
+                    ${State.language === 'zh' ? '共 ' + filtered.length + ' 篇可用文章' : filtered.length + ' Articles Available'}
                 </span>
             </div>
             
             ${filtered.length === 0 ? `
                 <div class="saved-empty">
                     <div class="saved-empty-icon"><i class="far fa-newspaper"></i></div>
-                    <p>No articles found in this category.</p>
-                    <a href="#home" style="color: var(--accent-gold); text-decoration: underline; margin-top: 15px; display: inline-block;">Return Home</a>
+                    <p>${State.language === 'zh' ? '该分类下未找到文章。' : 'No articles found in this category.'}</p>
+                    <a href="#home" style="color: var(--accent-gold); text-decoration: underline; margin-top: 15px; display: inline-block;">${dict.returnHome}</a>
                 </div>
             ` : `
                 <div class="saved-list">
@@ -739,7 +1084,7 @@ function renderCategoryView(category) {
                                 <span class="saved-item-cat">${art.category}</span>
                                 <a href="#article/${art.id}"><h3 class="saved-item-title">${art.title}</h3></a>
                                 <div class="saved-item-meta">
-                                    <span>By ${art.author}</span> &bull; <span>${art.date}</span> &bull; <span>${art.readTime}</span>
+                                    <span>${dict.by} ${art.author}</span> &bull; <span>${art.date}</span> &bull; <span>${State.language === 'zh' ? art.readTime.replace('min read', '分钟阅读') : art.readTime}</span>
                                     ${art.isPremium ? '<span style="color: var(--accent-gold); margin-left: 8px; font-weight:700;">[MEMBER-ONLY]</span>' : ''}
                                 </div>
                             </div>
@@ -769,13 +1114,14 @@ function renderCategoryView(category) {
 // Render Article Detail
 function renderArticleDetail(id) {
     const mainEl = document.getElementById("main-viewport");
-    const article = ARTICLES.find(a => a.id === id);
+    const rawArticle = ARTICLES.find(a => a.id === id);
+    const article = getLocalizedArticle(rawArticle);
     
     if (!article) {
         mainEl.innerHTML = `
             <div style="text-align: center; padding: 100px 0;">
-                <h2>Article Not Found</h2>
-                <a href="#home" style="color: var(--accent-gold); text-decoration: underline; margin-top: 20px; display: inline-block;">Return to Homepage</a>
+                <h2>${State.language === 'zh' ? '文章未找到' : 'Article Not Found'}</h2>
+                <a href="#home" style="color: var(--accent-gold); text-decoration: underline; margin-top: 20px; display: inline-block;">${State.language === 'zh' ? '返回首页' : 'Return to Homepage'}</a>
             </div>
         `;
         return;
@@ -793,7 +1139,7 @@ function renderArticleDetail(id) {
                         <div class="author-avatar">${article.authorInitials}</div>
                         <div class="author-details">
                             <span class="author-name">${article.author}</span>
-                            <span class="pub-date">Published ${article.date} &bull; ${article.readTime}</span>
+                            <span class="pub-date">${State.language === 'zh' ? '发布于' : 'Published'} ${article.date} &bull; ${State.language === 'zh' ? article.readTime.replace('min read', '分钟阅读') : article.readTime}</span>
                         </div>
                     </div>
                     <div class="article-tools">
@@ -935,20 +1281,22 @@ function initRoiCalculator() {
 function renderSaved() {
     const mainEl = document.getElementById("main-viewport");
     
-    const savedArticles = ARTICLES.filter(a => State.bookmarks.includes(a.id));
+    const savedArticles = ARTICLES.filter(a => State.bookmarks.includes(a.id)).map(getLocalizedArticle);
+    
+    const dict = LANG_DICT[State.language];
     
     let html = `
         <div class="saved-view">
             <div class="saved-header">
-                <h1>Bookmarked Articles</h1>
-                ${savedArticles.length > 0 ? `<button class="btn-clear-saved" id="clear-bookmarks-btn">Clear All</button>` : ''}
+                <h1>${dict.bookmarkedArticles}</h1>
+                ${savedArticles.length > 0 ? `<button class="btn-clear-saved" id="clear-bookmarks-btn">${dict.clearAll}</button>` : ''}
             </div>
             
             ${savedArticles.length === 0 ? `
                 <div class="saved-empty">
                     <div class="saved-empty-icon"><i class="far fa-bookmark"></i></div>
-                    <p>No saved articles yet. Bookmark articles from the home feed or read views.</p>
-                    <a href="#home" style="color: var(--accent-gold); text-decoration: underline; margin-top: 15px; display: inline-block;">Return Home</a>
+                    <p>${dict.noSaved}</p>
+                    <a href="#home" style="color: var(--accent-gold); text-decoration: underline; margin-top: 15px; display: inline-block;">${dict.returnHome}</a>
                 </div>
             ` : `
                 <div class="saved-list">
@@ -961,10 +1309,10 @@ function renderSaved() {
                                 <span class="saved-item-cat">${art.category}</span>
                                 <a href="#article/${art.id}"><h3 class="saved-item-title">${art.title}</h3></a>
                                 <div class="saved-item-meta">
-                                    <span>By ${art.author}</span> &bull; <span>${art.date}</span> &bull; <span>${art.readTime}</span>
+                                    <span>${dict.by} ${art.author}</span> &bull; <span>${art.date}</span> &bull; <span>${State.language === 'zh' ? art.readTime.replace('min read', '分钟阅读') : art.readTime}</span>
                                 </div>
                             </div>
-                            <button class="btn-remove-saved" data-id="${art.id}" title="Remove Bookmark">
+                            <button class="btn-remove-saved" data-id="${art.id}" title="${dict.removeBookmark}">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </div>
@@ -978,7 +1326,7 @@ function renderSaved() {
     
     // Listeners
     document.getElementById("clear-bookmarks-btn")?.addEventListener("click", () => {
-        if (confirm("Are you sure you want to clear all bookmarked articles?")) {
+        if (confirm(State.language === 'zh' ? "您确定要清空所有收藏的文章吗？" : "Are you sure you want to clear all bookmarked articles?")) {
             State.bookmarks = [];
             State.save();
             renderSaved();
@@ -997,48 +1345,94 @@ function renderSaved() {
 // Render About Page
 function renderAbout() {
     const mainEl = document.getElementById("main-viewport");
+    const lang = State.language;
     
-    let html = `
-        <div class="about-container">
-            <div class="about-grid">
-                <div class="about-image-side">
-                    <div class="about-image-wrapper">
-                        <img src="https://images.squarespace-cdn.com/content/v1/5c3cf248af2096f4d3bf7126/1571083361823-9RHSQ4CC6X4ZZ0SGRG7H/unnamed.jpg" alt="Emily Zhao" class="about-image">
+    let html = "";
+    if (lang === "zh") {
+        html = `
+            <div class="about-container">
+                <div class="about-grid">
+                    <div class="about-image-side">
+                        <div class="about-image-wrapper">
+                            <img src="https://images.squarespace-cdn.com/content/v1/5c3cf248af2096f4d3bf7126/1571083361823-9RHSQ4CC6X4ZZ0SGRG7H/unnamed.jpg" alt="赵艺聪" class="about-image">
+                        </div>
+                        <div class="about-social-row">
+                            <a href="mailto:emilyzhao0826@gmail.com" target="_blank" class="about-social-icon email" aria-label="电子邮箱">
+                                <i class="fa-regular fa-envelope"></i>
+                            </a>
+                            <a href="https://www.linkedin.com/in/emily-z-3391b11a2/" target="_blank" class="about-social-icon linkedin" aria-label="LinkedIn 档案">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                            <a href="https://github.com/emilyzdata" target="_blank" class="about-social-icon github" aria-label="GitHub 档案">
+                                <i class="fab fa-github"></i>
+                            </a>
+                        </div>
                     </div>
-                    <div class="about-social-row">
-                        <a href="mailto:emilyzhao0826@gmail.com" target="_blank" class="about-social-icon email" aria-label="Email Emily Zhao">
-                            <i class="fa-regular fa-envelope"></i>
-                        </a>
-                        <a href="https://www.linkedin.com/in/emily-z-3391b11a2/" target="_blank" class="about-social-icon linkedin" aria-label="LinkedIn Profile">
-                            <i class="fab fa-linkedin-in"></i>
-                        </a>
-                        <a href="https://github.com/emilyzdata" target="_blank" class="about-social-icon github" aria-label="GitHub Profile">
-                            <i class="fab fa-github"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="about-content-side">
-                    <span class="about-subtitle">EDITORIAL & INQUIRIES</span>
-                    <h1 class="about-title">About Emily Zhao</h1>
-                    
-                    <div class="about-intro-box">
-                        <p>This website is created by Emily Zhao to post industry news on media and marketing measurement.</p>
-                    </div>
-                    
-                    <div class="about-bio-text">
-                        <p>During her undergraduate years, Yicong (Emily) Zhao majored in legal translation at a law school. Her interest in exploration through different mediums has led her to pursue her master in media management at Fordham University in New York City. She collects data on the media world, analyzes it, and displays it in succinct visualizations.</p>
+                    <div class="about-content-side">
+                        <span class="about-subtitle">编辑与合作咨询</span>
+                        <h1 class="about-title">关于 赵艺聪</h1>
                         
-                        <p>Her work includes but is not limited to reporting, visualization, and statistical modeling. Outside of work, she enjoys doing art and training as a ballerina.</p>
+                        <div class="about-intro-box">
+                            <p>本网站由赵艺聪（Emily Zhao）创建，用于发布关于媒体和营销度量的行业新闻。</p>
+                        </div>
                         
-                        <div class="about-clients-section">
-                            <h3>SELECT CLIENTS & COLLABORATIONS</h3>
-                            <p>Dick’s Sporting Goods, Albertsons, Ahold, Gilead, Regeneron, Nissan, Visa, Pfizer, UCB, Morphosys, Novartis, Typethursday, and NYC Go.</p>
+                        <div class="about-bio-text">
+                            <p>在本科期间，赵艺聪（Emily）在法学院主修法律翻译。她对通过不同媒介进行探索的兴趣，促使她在纽约市的福特汉姆大学攻读媒体管理硕士学位。她收集关于媒体世界的数据，进行分析，并以简明直观的可视化形式展示出来。</p>
+                            
+                            <p>她的工作包括但不限于报告、可视化和统计建模。在工作之余，她喜欢做艺术和进行芭蕾舞演员的训练。</p>
+                            
+                            <div class="about-clients-section">
+                                <h3>合作与客户名单</h3>
+                                <p>Dick’s Sporting Goods, Albertsons, Ahold, Gilead, Regeneron, Nissan, Visa, Pfizer, UCB, Morphosys, Novartis, Typethursday, 和 NYC Go。</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    `;
+        `;
+    } else {
+        html = `
+            <div class="about-container">
+                <div class="about-grid">
+                    <div class="about-image-side">
+                        <div class="about-image-wrapper">
+                            <img src="https://images.squarespace-cdn.com/content/v1/5c3cf248af2096f4d3bf7126/1571083361823-9RHSQ4CC6X4ZZ0SGRG7H/unnamed.jpg" alt="Emily Zhao" class="about-image">
+                        </div>
+                        <div class="about-social-row">
+                            <a href="mailto:emilyzhao0826@gmail.com" target="_blank" class="about-social-icon email" aria-label="Email Emily Zhao">
+                                <i class="fa-regular fa-envelope"></i>
+                            </a>
+                            <a href="https://www.linkedin.com/in/emily-z-3391b11a2/" target="_blank" class="about-social-icon linkedin" aria-label="LinkedIn Profile">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                            <a href="https://github.com/emilyzdata" target="_blank" class="about-social-icon github" aria-label="GitHub Profile">
+                                <i class="fab fa-github"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="about-content-side">
+                        <span class="about-subtitle">EDITORIAL & INQUIRIES</span>
+                        <h1 class="about-title">About Emily Zhao</h1>
+                        
+                        <div class="about-intro-box">
+                            <p>This website is created by Emily Zhao to post industry news on media and marketing measurement.</p>
+                        </div>
+                        
+                        <div class="about-bio-text">
+                            <p>During her undergraduate years, Yicong (Emily) Zhao majored in legal translation at a law school. Her interest in exploration through different mediums has led her to pursue her master in media management at Fordham University in New York City. She collects data on the media world, analyzes it, and displays it in succinct visualizations.</p>
+                            
+                            <p>Her work includes but is not limited to reporting, visualization, and statistical modeling. Outside of work, she enjoys doing art and training as a ballerina.</p>
+                            
+                            <div class="about-clients-section">
+                                <h3>SELECT CLIENTS & COLLABORATIONS</h3>
+                                <p>Dick’s Sporting Goods, Albertsons, Ahold, Gilead, Regeneron, Nissan, Visa, Pfizer, UCB, Morphosys, Novartis, Typethursday, and NYC Go.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
     
     mainEl.innerHTML = html;
 }

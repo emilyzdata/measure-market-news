@@ -2068,3 +2068,48 @@ footer {
         font-size: 2.2rem;
     }
 }
+
+/* Language Dropdown Selector Styles */
+.lang-selector-container {
+    display: inline-block;
+    position: relative;
+}
+
+.lang-select {
+    background-color: transparent;
+    border: 1px solid var(--border-light);
+    border-radius: var(--border-radius-sm);
+    color: var(--text-secondary);
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 4px 24px 4px 8px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: var(--transition-smooth);
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666666' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 10px;
+}
+
+/* Update arrow color in dark theme */
+body.dark-theme .lang-select {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A3A3A3' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+.lang-select:hover, .lang-select:focus {
+    border-color: var(--text-primary);
+    color: var(--text-primary);
+    outline: none;
+}
+
+.lang-select option {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+}
