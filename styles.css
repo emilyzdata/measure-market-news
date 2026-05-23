@@ -260,25 +260,25 @@ body.dark-theme .brand-logo-image {
 }
 
 .brand-title {
-    font-family: var(--font-sans);
-    font-weight: 600;
-    font-size: 1.15rem;
+    font-family: var(--font-gothic);
+    font-weight: 300;
+    font-size: 3.2rem;
     line-height: 1;
     color: var(--text-primary);
     text-transform: uppercase;
-    letter-spacing: 0.28em;
-    padding: 0;
+    letter-spacing: 0.12em;
+    padding: 10px 0 5px 0;
     margin: 0;
 }
 
 .brand-tagline {
     font-family: var(--font-sans);
-    font-size: 0.65rem;
-    font-weight: 500;
+    font-size: 0.72rem;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.22em;
     color: var(--text-tertiary);
-    margin-top: 6px;
+    margin-top: 8px;
 }
 
 /* Luxury Editorial Masthead Meta Info */
@@ -1870,8 +1870,7 @@ footer {
     }
     
     .brand-title {
-        font-size: 1rem;
-        letter-spacing: 0.2em;
+        font-size: 2.8rem;
     }
     
     .brand-logo-image {
