@@ -592,10 +592,12 @@ async function getSubscribers() {
 }
 
 // Programmatic Email Sending via Resend API
-async function sendNewsletterViaResend(subject, htmlBody, subscribers, resendApiKey) {
+async function sendNewsletterViaResend(subject, htmlBody, subscribers, resendApiKey, fromEmail = "") {
     if (!resendApiKey) {
         return { success: false, error: "Missing Resend API Key" };
     }
+    
+    const sender = fromEmail.trim() || "Media Metric <onboarding@resend.dev>";
     
     let successCount = 0;
     let failCount = 0;
@@ -604,7 +606,7 @@ async function sendNewsletterViaResend(subject, htmlBody, subscribers, resendApi
     for (const sub of subscribers) {
         try {
             const payload = {
-                from: "Media Metric <onboarding@resend.dev>",
+                from: sender,
                 to: sub.email,
                 subject: subject,
                 html: htmlBody
@@ -760,43 +762,41 @@ const ARTICLE_TRANSLATIONS = {
             <p>以乔治·科斯坦萨（George Costanza）为例。乔治对世界的基线先验信念是每个人都在密谋对付他，或者他正处于被揭穿为骗子的边缘。这是一个非常强的先验：*P(Exposed) = 0.8*。当乔治观察到一件证据——比如他的老板在走廊里和同事低声细语时——他必须评估在两种假设下发生此事件的似然度：他们正在讨论他的无能（*H₁*）与讨论普通的办公事务（*H₂*）。由于乔治的偏执，他估计*P(Whispering|H₁)*极高。当他运行公式时，他的后验概率飙升至 *0.99*，从而引发了一场疯狂且完全没有必要的掩盖阴谋。</p>
             
             <h2>杰里与伊莱恩：解耦混淆信号</h2>
-            <p>杰里和伊莱恩的关系完美地说明了困扰营销归因的混淆信号。当杰里观察到伊莱恩对他异常好时，是因为她还有余情（*H_romance*），还是仅仅想让他帮忙看管公寓（*H_favor*）？</p>
-            <p>在这里，证据的似然度是被混淆的。伊莱恩的友善（*E*）在这两种假设下都是高度可能的。一个天真的观察者（或最后触点归因模型）可能会将伊莱恩的行为完全归因于浪漫兴趣。然而，贝叶斯方法结合了伊莱恩想要帮忙的先验概率（*P(H_favor) = 0.7*）与伊莱恩想要复合的先验（*P(H_romance) = 0.15*）。一旦将先验融入计算，后验概率就压倒性地倾向于实用的解释。杰里继续留在沙发上，公寓得到了浇水。</p>
+            还是仅仅想让他帮忙看管公寓（<em>H_favor</em>）？</p>
+            <p>这里，证据的似然度是混淆的。在两种假设下，伊莱恩的友好行为（<em>E</em>）都是极有可能发生的。一个幼稚的观察者（或最后一次点击归因模型）可能会将伊莱恩的行为完全归因于浪漫兴趣。然而，贝叶斯方法结合了伊莱恩需要帮忙的先验概率（<em>P(H_favor) = 0.7</em>）与伊莱恩想复合的先验概率（<em>P(H_romance) = 0.15</em>）。一旦将先验概率折叠进去，后验概率就强烈倾向于实用的解释。杰里呆在沙发上，公寓的花也得到了浇水。</p>
             
-            <h2>从喜剧偏执到现代广告归因</h2>
-            <p>这如何转化为营销科学？在现代广告中，核心问题是相同的：用户购买是因为他们看到了广告（*H_ad*），还是无论如何他们都会购买（*H_organic*）？</p>
-            <p>最后一次点击归因就像乔治·科斯坦萨的偏执：它将所有功劳归因于最后观察到的点击，忽略了用户的先验意图。贝叶斯归因模型（如媒介混合建模中使用的模型）允许我们基于历史自然基线销售设置先验，然后基于在特定广告曝光下转化的似然度更新我们的信念。通过将转化视为一系列更新的后验概率，我们避免了将功劳过度归因于表面的触点，确保广告预算分配到真正驱动增量增长的渠道。</p>
-        `
-    },
-    8: {
-        titleZh: "Labubu 的成名之路：使用谷歌 Meridian 媒介混合模型预测全球销量",
-        categoryZh: "媒介混合模型",
-        excerptZh: "当 Blackpink 的 Lisa 晒出她的 Labubu 钥匙扣照片时，全球需求一夜暴增。我们展示了如何使用谷歌开源的 Meridian 框架对病毒式传播进行建模、设置贝叶斯先验并预测潮流玩具的销量。"
-    },
-    9: {
-        titleZh: "从刷屏到成交：衡量 TikTok 对亚马逊销量的因果影响与光环效应",
-        categoryZh: "零售媒体",
-        excerptZh: "亚马逊与 TikTok 的整合改变了社交电商，但衡量跨平台的光环效应仍是一个巨大挑战。我们拆解了因果推断方法，以衡量 TikTok 对亚马逊销量的真实影响。"
-    },
-    10: {
-        titleZh: "如何在媒介组合中优化网红营销：深挖 Meta 开源的 Robyn 框架",
-        categoryZh: "媒介混合模型",
-        excerptZh: "众所周知，网红营销很难衡量。我们展示了如何利用 Meta 开源的 Robyn MMM 框架，结合 Adstock 衰减和饱和曲线，为 DTC 品牌建模和优化创作者支出。"
-    },
-    11: {
-        titleZh: "全球媒体度量框架：为 Rhode Skin 设计统一的 MMM 与归因引擎",
-        categoryZh: "归因与提升度",
-        excerptZh: "如何衡量一个在全球扩张的超高速增长护肤品牌的营销表现？我们以海莉·比伯的 Rhode Skin 为实操案例，概述了一个结合媒介混合建模和多触点归因的统一量化框架。"
-    },
-    12: {
-        titleZh: "如何量化精品服饰品牌的内衣定价：社交媒体与搜索引导的分析方法",
-        categoryZh: "零售媒体",
-        excerptZh: "精品内衣和泳装市场正在经历结构性转型。像 Cou Cou Intimates、Frankies Bikinis 这样的精品品牌通过将自然社群构建与高端的社论级品牌塑造相结合，成功开辟了高利润的利基市场。我们概述了一个结合社交情感分析和谷歌搜索量的数据驱动框架，用于建模价格弹性和品牌资产。"
+            <h2>从情景喜剧的偏执到现代广告归因</h2>
+            <p>这如何转化为营销科学？在现代广告中，核心问题是相同的：用户购买是因为他们看到了广告（<em>H_ad</em>），还是无论如何他们都会购买（<em>H_organic</em>）？</p>
+            <p>最后一次点击归因就像乔治·科斯坦萨的偏执：它将所有功劳都归于最后观察到的点击，忽略了用户的先验意图。贝叶斯归因模型（如媒体混合模型 MMM 中使用的模型）允许我们根据历史有机基线销售额设置先验概率，然后根据特定广告曝光下转化的似然度来更新我们的信念。通过将转化视为一系列更新的后验概率，我们避免了将功劳过度归因于表面的触点，确保广告预算分配到能够带来真正增量增长 of 渠道中。</p>
+        `,
+        featuredImage: "./assets/seinfeld_bayesian.png"
     },
     13: {
-        titleZh: "统一电视受众度量：《吉尔莫女孩》如何吸引并留住共同收视群体",
+        titleZh: "统一电视度量：《吉尔莫女孩》如何吸引并留住共同收视群体",
         categoryZh: "归因与提升度",
-        excerptZh: "随着电视格局在传统广播和流媒体之间高度碎片化，衡量共同收视行为至关重要。我们以《吉尔莫女孩》的跨代吸引力为案例，剖析家庭受众动态与统一电视度量框架。"
+        excerptZh: "随着电视格局在传统广播和流媒体之间高度碎片化，衡量共同收视行为至关重要。我们以《吉尔莫女孩》的跨代吸引力为案例，剖析家庭受众动态与统一电视度量框架。",
+        bodyZh: `
+            <p>在屏幕碎片化、注意力碎片化和度量碎片化的时代，很少有电视节目能像《吉尔莫女孩》（Gilmore Girls）那样保持长久的文化生命力。这部最初于2000年代初在传统线性网络上播出的剧集，凭借洛蕾莱（Lorelai）和罗里·吉尔莫（Rory Gilmore）的机智对话，在流媒体平台上迎来了巨大的二次生命，在剧集收官数十年后仍定期登顶尼尔森流媒体排行榜。对于电视网络和品牌广告主而言，这种持久的成功不仅仅是一个怀旧的异常现象；它代表了<strong>共同收视行为</strong>（co-viewing behavior）的黄金标准——定义为来自不同年龄段的多个观众同时观看同一个屏幕。然而，随着观众流向传统有线电视和联网电视（CTV）应用，我们该如何构建一个统一的电视度量框架来捕捉这种合并的家庭受众呢？</p>
+            
+            <blockquote>
+                “《吉尔莫女孩》是终极的共同收视模型。要衡量其真实价值，品牌必须超越设备级指标，采用家庭级的统一电视度量。”
+            </blockquote>
+            
+            <h2>碎片化悖论：线性电视与流媒体电视</h2>
+            <p>历史上，衡量电视观众非常简单：尼尔森在样本家庭中安装黑盒子，记录屏幕调到哪个频道，然后推算全国收视率。今天，格局已经分裂。线性电视继续通过广播信号吸引庞大的老年观众，而数字流媒体和联网电视（CTV）则按需服务于高度针对性的年轻观众。</p>
+            <p>如果广告主在《吉尔莫女孩》的线性广播辛迪加分发和 Netflix 或 Peacock 上的广告支持流媒体播放中同时运行活动，他们将面临度量噩梦。线性电视衡量<strong>屏幕级触达</strong>（家庭调谐），而 CTV 平台追踪<strong>设备级曝光</strong>（数字广告服务器）。这导致了触达人数的重复计算，低估了总观众量，并让策划者无法得知究竟是谁坐在沙发上。</p>
+            
+            <h2>统一电视度量的运行机制</h2>
+            <p>为了解决这个问题，现代广告主正在利用<strong>统一电视度量框架</strong>（UTM）。该方法通过结合三个主要数据层，将线性和流媒体 data 聚合到单个家庭级模型中：</p>
+            <p>1. <strong>ACR（自动内容识别）数据</strong>：嵌入在数百万台现代智能电视中，ACR 技术实时识别屏幕上播放内容的视觉和声音指纹，无论其来源是有线电视盒、游戏机还是流媒体应用。这提供了基线的“屏幕曝光”数据。</p>
+            <p>2. <strong>广告服务器日志匹配</strong>：我们将数字 CTV 广告曝光的时间戳与智能电视的 IP 地址进行匹配。这有助于确定广告究竟何时递送到家庭的流媒体会话中。</p>
+            <p>3. <strong>家庭设备图谱</strong>：由于 ACR 数据只能告诉我们电视屏幕是开着的，我们将家庭的 IP 地址与设备图谱进行交叉比对，以识别连接到同一网络的手机、笔记本电脑和平板电脑。通过分析设备拥有者的社群结构，我们可以建模共同收视的概率（例如，母女一起观看）。</p>
+            
+            <h2>罗里与洛蕾莱：跨代触达的模型</h2>
+            <p>将这一统一框架应用于《吉尔莫女孩》揭示了为什么共同收视对品牌如此有价值。传统的数字归因假设屏幕上的广告只影响主要账号持有人。而在现实中，《吉尔莫女孩》的共同收视乘数为<strong>1.8倍</strong>——这意味着每100次屏幕曝光，就有180名观众接触到该广告，通常涵盖了婴儿潮/X世代的父母以及千禧一代/Z世代的孩子。</p>
+            <p>通过利用统一的设备图谱，广告主可以衡量“跨设备溢出”效应。当母亲在观看《吉尔莫女孩》期间看到电视屏幕上的广告，而她的女儿随后在手机上购买了该产品时，统一电视度量将这些触点关联在一起。这防止了品牌将转化完全归因于社交媒体搜索，证明了大屏幕仍然是家庭共同发现和决策的终极引擎。</p>
+        `,
+        featuredImage: "./assets/gilmore_girls.jpg"
     },
     14: {
         titleZh: "《亢奋》如何将情感混乱转化为消费经济",
@@ -869,7 +869,7 @@ const ADMIN_LANG = {
         resendSmart: "Resend Smart Bulk Send",
         sendBccEn: "Local BCC Send (EN)",
         sendBccZh: "Local BCC Send (ZH)",
-        saveKeySuccess: "Resend API Key saved successfully!",
+        saveKeySuccess: "Resend settings saved successfully!",
         exportEmpty: "No subscribers to export.",
         fillEnSubjectContent: "Please fill in the English briefing subject and content!",
         fillZhSubjectContent: "Please fill in the Chinese briefing subject and content!",
@@ -880,7 +880,12 @@ const ADMIN_LANG = {
         resendConfirm: "You are about to use Resend Smart Bulk Send to deliver newsletters to {count} subscribers. ZH subscribers will receive Chinese, others will receive English. Continue?",
         resendComplete: "Smart bulk send completed!",
         resendSuccessCount: "Sent successfully",
-        resendFailCount: "Failed to send"
+        resendFailCount: "Failed to send",
+        emailCampaigns: "Email Campaigns",
+        resendKeyLocal: "Resend API Key (saved locally)",
+        resendFromEmailLocal: "Sender Email (verified domain, e.g. newsletter@yourdomain.com)",
+        getFreeKey: "Get free Resend API Key",
+        saveBtn: "Save Settings"
     },
     zh: {
         adminTitle: "媒体财经后台管理 (Admin)",
@@ -904,7 +909,7 @@ const ADMIN_LANG = {
         resendSmart: "Resend 智能群发",
         sendBccEn: "本地群发 (英文版)",
         sendBccZh: "本地群发 (中文版)",
-        saveKeySuccess: "Resend API Key 保存成功！",
+        saveKeySuccess: "Resend 配置保存成功！",
         exportEmpty: "暂无可导出的订阅用户。",
         fillEnSubjectContent: "请填写英文版简报的主题和内容！",
         fillZhSubjectContent: "请填写中文版简报的主题和内容！",
@@ -915,7 +920,12 @@ const ADMIN_LANG = {
         resendConfirm: "您将使用 Resend 智能群发功能向 {count} 名订阅者推送简报。订阅 ZH 的用户将收到中文简报，其余用户将收到英文简报。确定继续吗？",
         resendComplete: "智能群发完成！",
         resendSuccessCount: "成功投递",
-        resendFailCount: "发送失败"
+        resendFailCount: "发送失败",
+        emailCampaigns: "邮件群发 (Email Campaigns)",
+        resendKeyLocal: "Resend API Key (保存至本地)",
+        resendFromEmailLocal: "发件人邮箱 (已验证域名，如 newsletter@yourdomain.com)",
+        getFreeKey: "免费获取 Resend Key",
+        saveBtn: "保存设置"
     }
 };
 
@@ -1880,6 +1890,7 @@ const DEFAULT_NEWSLETTER_ZH = `<div style="font-family: 'Helvetica Neue', Helvet
     const dict = ADMIN_LANG[State.language];
     
     let keySaved = localStorage.getItem("resend_api_key") || "";
+    let fromEmailSaved = localStorage.getItem("resend_from_email") || "";
     
     let html = `
         <div class="admin-container">
@@ -1939,16 +1950,22 @@ const DEFAULT_NEWSLETTER_ZH = `<div style="font-family: 'Helvetica Neue', Helvet
                 <div class="admin-card">
                     <div class="admin-card-title">${dict.emailCampaigns}</div>
                     
-                    <!-- Resend API Key Config -->
-                    <div class="admin-input-group" style="background-color: var(--bg-primary); padding: 12px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-light); margin-bottom: 20px;">
-                        <label class="admin-label" style="display: flex; justify-content: space-between;">
-                            <span>${dict.resendKeyLocal}</span>
-                            <a href="https://resend.com" target="_blank" style="color: var(--accent-gold); text-decoration: underline; text-transform: none; font-weight: normal;">${dict.getFreeKey}</a>
-                        </label>
-                        <div style="display: flex; gap: 8px;">
+                    <!-- Resend API Key & Sender Email Config -->
+                    <div class="admin-input-group" style="background-color: var(--bg-primary); padding: 12px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-light); margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px;">
+                        <div>
+                            <label class="admin-label" style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                <span>${dict.resendKeyLocal}</span>
+                                <a href="https://resend.com" target="_blank" style="color: var(--accent-gold); text-decoration: underline; text-transform: none; font-weight: normal;">${dict.getFreeKey}</a>
+                            </label>
                             <input type="password" id="resend-api-key" class="admin-input" placeholder="re_123456789..." value="${keySaved}">
-                            <button id="btn-save-key" class="admin-btn">${dict.saveBtn}</button>
                         </div>
+                        <div>
+                            <label class="admin-label" style="margin-bottom: 6px;">
+                                <span>${dict.resendFromEmailLocal}</span>
+                            </label>
+                            <input type="email" id="resend-from-email" class="admin-input" placeholder="Media Metric &lt;onboarding@resend.dev&gt;" value="${fromEmailSaved}">
+                        </div>
+                        <button id="btn-save-key" class="admin-btn" style="align-self: flex-end; padding: 6px 12px; font-size: 0.75rem;">${dict.saveBtn}</button>
                     </div>
                     
                     <form id="newsletter-form">
@@ -2061,11 +2078,13 @@ function attachAdminEventListeners(subscribers) {
         });
     });
     
-    // 2. Save Resend Key
+    // 2. Save Resend Config
     const saveKeyBtn = document.getElementById("btn-save-key");
     saveKeyBtn?.addEventListener("click", () => {
         const keyVal = document.getElementById("resend-api-key").value.trim();
+        const fromEmailVal = document.getElementById("resend-from-email").value.trim();
         localStorage.setItem("resend_api_key", keyVal);
+        localStorage.setItem("resend_from_email", fromEmailVal);
         alert(dict.saveKeySuccess);
     });
     
@@ -2095,6 +2114,7 @@ function attachAdminEventListeners(subscribers) {
         const subject = document.getElementById(activeTab === "en" ? "email-subject-en" : "email-subject-zh").value.trim();
         const body = document.getElementById(activeTab === "en" ? "email-body-en" : "email-body-zh").value.trim();
         const apiKey = localStorage.getItem("resend_api_key");
+        const fromEmail = localStorage.getItem("resend_from_email") || "";
         
         if (!apiKey) {
             alert(State.language === 'zh' ? "请先在上方配置 Resend API Key 才能进行发送测试。" : "Please configure your Resend API Key first.");
@@ -2111,7 +2131,7 @@ function attachAdminEventListeners(subscribers) {
         testBtn.disabled = true;
         testBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (State.language === 'zh' ? '发送中...' : 'Sending...');
         
-        const result = await sendNewsletterViaResend(subject, body, [{ email: testEmail }], apiKey);
+        const result = await sendNewsletterViaResend(subject, body, [{ email: testEmail }], apiKey, fromEmail);
         
         testBtn.disabled = false;
         testBtn.innerHTML = '<i class="fas fa-paper-plane"></i> ' + dict.sendTest;
@@ -2178,6 +2198,7 @@ function attachAdminEventListeners(subscribers) {
         const zhBody = document.getElementById("email-body-zh").value.trim();
         
         const apiKey = localStorage.getItem("resend_api_key");
+        const fromEmail = localStorage.getItem("resend_from_email") || "";
         
         if (!apiKey) {
             alert(State.language === 'zh' ? "请先在上方配置 Resend API Key！" : "Please configure your Resend API Key first.");
@@ -2206,7 +2227,7 @@ function attachAdminEventListeners(subscribers) {
         
         // 1. Send EN version to EN subscribers
         if (enTargets.length > 0) {
-            const enResult = await sendNewsletterViaResend(enSubject, enBody, enTargets, apiKey);
+            const enResult = await sendNewsletterViaResend(enSubject, enBody, enTargets, apiKey, fromEmail);
             if (enResult.success) {
                 totalSuccess += enResult.successCount;
                 totalFail += enResult.failCount;
@@ -2219,7 +2240,7 @@ function attachAdminEventListeners(subscribers) {
         
         // 2. Send ZH version to ZH subscribers
         if (zhTargets.length > 0) {
-            const zhResult = await sendNewsletterViaResend(zhSubject, zhBody, zhTargets, apiKey);
+            const zhResult = await sendNewsletterViaResend(zhSubject, zhBody, zhTargets, apiKey, fromEmail);
             if (zhResult.success) {
                 totalSuccess += zhResult.successCount;
                 totalFail += zhResult.failCount;
