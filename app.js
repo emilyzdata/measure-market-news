@@ -1,9 +1,6 @@
-/*
-================================================================================
-   MEDIA METRIC - CORE APPLICATION SCRIPT
-   Features: Hash Router, Mock Database, State Controller, Interactive Analytics Charts
-================================================================================
-*/
+// --- SUPABASE CONFIGURATION FOR VISITOR TRACKING ---
+const SUPABASE_URL = "";       // Paste your Supabase project URL here
+const SUPABASE_ANON_KEY = "";  // Paste your Supabase project anon/public key here
 
 // --- 1. ARTICLE DATABASE ---
 const ARTICLES = [
@@ -499,6 +496,37 @@ const State = {
 // Initialize State immediately
 State.init();
 
+// Analytics page view logger
+async function logPageView(path) {
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+        console.warn("Supabase credentials not configured. Page views are not being logged.");
+        return;
+    }
+    
+    try {
+        const payload = {
+            path: path,
+            referrer: document.referrer || null,
+            user_agent: navigator.userAgent || null,
+            screen_width: window.innerWidth || null,
+            language: navigator.language || null
+        };
+        
+        await fetch(`${SUPABASE_URL}/rest/v1/page_views`, {
+            method: "POST",
+            headers: {
+                "apikey": SUPABASE_ANON_KEY,
+                "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+                "Content-Type": "application/json",
+                "Prefer": "return=minimal"
+            },
+            body: JSON.stringify(payload)
+        });
+    } catch (err) {
+        console.error("Failed to log page view to Supabase:", err);
+    }
+}
+
 // --- 3. THE LIGHTWEIGHT ROUTER ---
 const Router = {
     routes: {},
@@ -511,6 +539,9 @@ const Router = {
     handleRoute() {
         const hash = window.location.hash || "#home";
         let matched = false;
+        
+        // Log page view to Supabase analytics
+        logPageView(hash);
         
         // Update nav active states
         document.querySelectorAll(".nav-links li").forEach(li => li.classList.remove("active"));
