@@ -1,6 +1,6 @@
 // --- SUPABASE CONFIGURATION FOR VISITOR TRACKING ---
-const SUPABASE_URL = "";       // Paste your Supabase project URL here
-const SUPABASE_ANON_KEY = "";  // Paste your Supabase project anon/public key here
+const SUPABASE_URL = "https://bjlbjxvsdgkgrimobtxe.supabase.co";       // Paste your Supabase project URL here
+const SUPABASE_ANON_KEY = "sb_publishable_GeW3IXdJEzYT1nMHQZ7IlQ_67Px_TdZ";  // Paste your Supabase project anon/public key here
 
 // --- 1. ARTICLE DATABASE ---
 const ARTICLES = [
