@@ -1895,3 +1895,13 @@ footer {
         grid-template-columns: 1fr;
     }
 }
+
+/* Hide all subscription and membership elements to make the website completely free */
+.btn-login,
+.btn-subscribe,
+.btn-logout,
+#header-user-info,
+#header-user-badge,
+#top-header-right-separator {
+    display: none !important;
+}

@@ -35,7 +35,7 @@ const ARTICLES = [
         authorInitials: "EZ",
         date: "May 10, 2026",
         readTime: "5 min read",
-        isPremium: true,
+        isPremium: false,
         trending: false
     },
     {
@@ -67,7 +67,7 @@ const ARTICLES = [
         authorInitials: "EZ",
         date: "May 18, 2026",
         readTime: "6 min read",
-        isPremium: true,
+        isPremium: false,
         trending: false
     },
     {
@@ -99,7 +99,7 @@ const ARTICLES = [
         authorInitials: "EZ",
         date: "May 22, 2026",
         readTime: "7 min read",
-        isPremium: true,
+        isPremium: false,
         trending: false
     },
     {
@@ -132,7 +132,7 @@ const ARTICLES = [
         authorInitials: "EZ",
         date: "May 20, 2026",
         readTime: "6 min read",
-        isPremium: true,
+        isPremium: false,
         trending: false
     },
     {
@@ -164,7 +164,7 @@ const ARTICLES = [
         authorInitials: "EZ",
         date: "May 22, 2026",
         readTime: "6 min read",
-        isPremium: true,
+        isPremium: false,
         trending: false
     },
     {
@@ -203,7 +203,7 @@ const ARTICLES = [
         authorInitials: "EZ",
         date: "May 22, 2026",
         readTime: "7 min read",
-        isPremium: true,
+        isPremium: false,
         trending: true
     },
     {
@@ -242,7 +242,7 @@ const ARTICLES = [
         authorInitials: "EZ",
         date: "May 22, 2026",
         readTime: "6 min read",
-        isPremium: true,
+        isPremium: false,
         trending: false
     },
     {
@@ -276,7 +276,7 @@ const ARTICLES = [
         authorInitials: "EZ",
         date: "May 22, 2026",
         readTime: "6 min read",
-        isPremium: true,
+        isPremium: false,
         trending: false
     }
 ];
