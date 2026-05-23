@@ -528,6 +528,9 @@ const Router = {
             document.getElementById("nav-saved")?.classList.add("active");
             renderSaved();
             matched = true;
+        } else if (hash === "#about") {
+            renderAbout();
+            matched = true;
         }
         
         // Dynamic routes with parameters
@@ -996,6 +999,55 @@ function renderSaved() {
             renderSaved();
         });
     });
+}
+
+// Render About Page
+function renderAbout() {
+    const mainEl = document.getElementById("main-viewport");
+    
+    let html = `
+        <div class="about-container">
+            <div class="about-grid">
+                <div class="about-image-side">
+                    <div class="about-image-wrapper">
+                        <img src="https://images.squarespace-cdn.com/content/v1/5c3cf248af2096f4d3bf7126/1571083361823-9RHSQ4CC6X4ZZ0SGRG7H/unnamed.jpg" alt="Emily Zhao" class="about-image">
+                    </div>
+                    <div class="about-social-row">
+                        <a href="mailto:emilyzhao0826@gmail.com" target="_blank" class="about-social-icon email" aria-label="Email Emily Zhao">
+                            <i class="fa-regular fa-envelope"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/in/emily-z-3391b11a2/" target="_blank" class="about-social-icon linkedin" aria-label="LinkedIn Profile">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="https://github.com/emilyzdata" target="_blank" class="about-social-icon github" aria-label="GitHub Profile">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="about-content-side">
+                    <span class="about-subtitle">EDITORIAL & INQUIRIES</span>
+                    <h1 class="about-title">About Emily Zhao</h1>
+                    
+                    <div class="about-intro-box">
+                        <p>This website is created by Emily Zhao to post industry news on media and marketing measurement.</p>
+                    </div>
+                    
+                    <div class="about-bio-text">
+                        <p>During her undergraduate years, Yicong (Emily) Zhao majored in legal translation at a law school. Her interest in exploration through different mediums has led her to pursue her master in media management at Fordham University in New York City. She collects data on the media world, analyzes it, and displays it in succinct visualizations.</p>
+                        
+                        <p>Her work includes but is not limited to reporting, visualization, and statistical modeling. Outside of work, she enjoys doing art and training as a ballerina.</p>
+                        
+                        <div class="about-clients-section">
+                            <h3>SELECT CLIENTS & COLLABORATIONS</h3>
+                            <p>Dick’s Sporting Goods, Albertsons, Ahold, Gilead, Regeneron, Nissan, Visa, Pfizer, UCB, Morphosys, Novartis, Typethursday, and NYC Go.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    mainEl.innerHTML = html;
 }
 
 // Render Interactive Benchmarks Dashboard (Index Page)
