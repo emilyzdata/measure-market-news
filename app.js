@@ -534,26 +534,18 @@ async function logPageView(path) {
     }
 }
 
-// Initialize State immediately
-State.init();
-
-// Analytics page view logger
-async function logPageView(path) {
+// Subscriber management API helper
+async function saveSubscriber(email) {
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-        console.warn("Supabase credentials not configured. Page views are not being logged.");
-        return;
+        console.warn("Supabase credentials not configured. Cannot save subscriber.");
+        return { success: false, error: "Credentials not configured" };
     }
-    
     try {
         const payload = {
-            path: path,
-            referrer: document.referrer || null,
-            user_agent: navigator.userAgent || null,
-            screen_width: window.innerWidth || null,
-            language: navigator.language || null
+            email: email,
+            language: State.language
         };
-        
-        await fetch(`${SUPABASE_URL}/rest/v1/page_views`, {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/subscribers`, {
             method: "POST",
             headers: {
                 "apikey": SUPABASE_ANON_KEY,
@@ -563,9 +555,84 @@ async function logPageView(path) {
             },
             body: JSON.stringify(payload)
         });
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            if (res.status === 409 || (errData.message && errData.message.includes("unique"))) {
+                return { success: false, error: "already_subscribed" };
+            }
+            return { success: false, error: errData.message || "Subscription failed" };
+        }
+        return { success: true };
     } catch (err) {
-        console.error("Failed to log page view to Supabase:", err);
+        console.error("Failed to subscribe:", err);
+        return { success: false, error: err.message };
     }
+}
+
+// Get subscribers list for admin dashboard
+async function getSubscribers() {
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+        return [];
+    }
+    try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/subscribers?order=created_at.desc`, {
+            method: "GET",
+            headers: {
+                "apikey": SUPABASE_ANON_KEY,
+                "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+                "Content-Type": "application/json"
+            }
+        });
+        if (!res.ok) return [];
+        return await res.json();
+    } catch (err) {
+        console.error("Failed to fetch subscribers:", err);
+        return [];
+    }
+}
+
+// Programmatic Email Sending via Resend API
+async function sendNewsletterViaResend(subject, htmlBody, subscribers, resendApiKey) {
+    if (!resendApiKey) {
+        return { success: false, error: "Missing Resend API Key" };
+    }
+    
+    let successCount = 0;
+    let failCount = 0;
+    let errors = [];
+
+    for (const sub of subscribers) {
+        try {
+            const payload = {
+                from: "Media Metric <onboarding@resend.dev>",
+                to: sub.email,
+                subject: subject,
+                html: htmlBody
+            };
+
+            const response = await fetch("https://api.resend.com/emails", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${resendApiKey}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                successCount++;
+            } else {
+                const errJson = await response.json();
+                failCount++;
+                errors.push(`${sub.email}: ${errJson.message || 'Error'}`);
+            }
+        } catch (e) {
+            failCount++;
+            errors.push(`${sub.email}: ${e.message}`);
+        }
+    }
+
+    return { success: true, successCount, failCount, errors };
 }
 
 // --- 2.5 BILINGUAL DICTIONARIES & TRANSLATIONS ---
@@ -599,7 +666,14 @@ const LANG_DICT = {
         returnHome: "Return Home",
         removeBookmark: "Remove Bookmark",
         brandTitle: "MEDIA METRIC",
-        footerDesc: "Media Metric is a premium B2B editorial service providing advanced diagnostic insights and operational reports on ad technology, measurement modeling, privacy regulations, and retail media network convergence."
+        footerDesc: "Media Metric is a premium B2B editorial service providing advanced diagnostic insights and operational reports on ad technology, measurement modeling, privacy regulations, and retail media network convergence.",
+        newsletterTitle: "Subscribe to Media Metric",
+        newsletterDesc: "Get premium ad-tech audits, MMM modeling reports, and privacy updates delivered weekly.",
+        newsletterPlaceholder: "Enter your email address",
+        newsletterBtn: "Subscribe",
+        newsletterDisclaimer: "No spam. Unsubscribe at any time.",
+        newsletterSuccessTitle: "Thank You!",
+        newsletterSuccessDesc: "You have successfully subscribed to our weekly briefings."
     },
     zh: {
         home: "首页",
@@ -630,7 +704,14 @@ const LANG_DICT = {
         returnHome: "返回首页",
         removeBookmark: "移除收藏",
         brandTitle: "媒体财经",
-        footerDesc: "媒体财经是一家领先的 B2B 媒体平台，提供广告技术、度量建模、隐私法规和零售媒体网络融合等领域的前沿诊断洞察和运营报告。"
+        footerDesc: "媒体财经是一家领先的 B2B 媒体平台，提供广告技术、度量建模、隐私法规和零售媒体网络融合等领域的前沿诊断洞察和运营报告。",
+        newsletterTitle: "订阅媒体财经",
+        newsletterDesc: "每周获取最前沿的广告技术、媒介混合建模及行业诊断洞察报告。",
+        newsletterPlaceholder: "输入您的电子邮箱地址",
+        newsletterBtn: "立即订阅",
+        newsletterDisclaimer: "无垃圾广告，支持随时退订。",
+        newsletterSuccessTitle: "感谢您的订阅！",
+        newsletterSuccessDesc: "您的邮箱已成功加入我们的每周简报发送列表。"
     }
 };
 
@@ -922,6 +1003,9 @@ const Router = {
         } else if (hash === "#about") {
             renderAbout();
             matched = true;
+        } else if (hash === "#admin") {
+            renderAdmin();
+            matched = true;
         }
         
         // Dynamic routes with parameters
@@ -980,6 +1064,17 @@ function getHomeStructureHtml() {
                 <div class="widget-box">
                     <h3 class="section-sidebar-title" style="border-bottom: 1px solid var(--border-color); padding-bottom: 6px;">${dict.mostPopular}</h3>
                     <div class="most-read-list" id="popular-container"></div>
+                </div>
+
+                <!-- Newsletter Subscription Widget -->
+                <div class="newsletter-widget" id="home-newsletter-widget">
+                    <h3 class="newsletter-title">${dict.newsletterTitle}</h3>
+                    <p class="newsletter-desc">${dict.newsletterDesc}</p>
+                    <form class="newsletter-form" id="home-newsletter-form">
+                        <input type="email" class="newsletter-input" placeholder="${dict.newsletterPlaceholder}" required id="home-newsletter-email">
+                        <button type="submit" class="newsletter-btn">${dict.newsletterBtn}</button>
+                    </form>
+                    <p class="newsletter-disclaimer">${dict.newsletterDisclaimer}</p>
                 </div>
             </aside>
         </div>
@@ -1472,7 +1567,50 @@ function attachHomeEventListeners() {
         });
     });
     
+    // Newsletter signup submit
+    const newsletterForm = document.getElementById("home-newsletter-form");
+    if (newsletterForm) {
+        newsletterForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const emailInput = document.getElementById("home-newsletter-email");
+            if (!emailInput) return;
+            const email = emailInput.value.trim();
+            if (!email) return;
 
+            const submitBtn = newsletterForm.querySelector("button[type='submit']");
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = State.language === 'zh' ? '提交中...' : 'Submitting...';
+            }
+
+            const result = await saveSubscriber(email);
+            
+            const widget = document.getElementById("home-newsletter-widget");
+            if (widget) {
+                if (result.success) {
+                    const dict = LANG_DICT[State.language];
+                    widget.innerHTML = `
+                        <div class="newsletter-success">
+                            <i class="fas fa-check-circle"></i>
+                            <h4>${dict.newsletterSuccessTitle}</h4>
+                            <p>${dict.newsletterSuccessDesc}</p>
+                            <p style="font-weight: 700; margin-top: 8px; font-size: 0.75rem;">${email}</p>
+                        </div>
+                    `;
+                } else {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = State.language === 'zh' ? '立即订阅' : 'Subscribe';
+                    }
+                    if (result.error === "already_subscribed") {
+                        alert(State.language === 'zh' ? '此邮箱已在订阅列表中。' : 'This email is already in our subscription list.');
+                    } else {
+                        alert(State.language === 'zh' ? '订阅失败，请稍后重试。' : 'Failed to subscribe, please try again later.');
+                    }
+                }
+            }
+        });
+    }
 }
 
 // --- 5. MODAL WORKFLOW CONTROLLERS ---
@@ -1592,6 +1730,268 @@ function syncUserStateUI() {
         const id = parseInt(articleMatch[1], 10);
         renderArticleDetail(id);
     }
+}
+
+// --- 6. ADMIN DASHBOARD VIEW ---
+async function renderAdmin() {
+    const mainEl = document.getElementById("main-viewport");
+    const subscribers = await getSubscribers();
+    
+    let keySaved = localStorage.getItem("resend_api_key") || "";
+    
+    let html = `
+        <div class="admin-container">
+            <header class="admin-header">
+                <h1 class="admin-title">媒体财经后台管理 (Admin)</h1>
+                <a href="#home" class="admin-btn admin-btn-secondary"><i class="fas fa-home"></i> 返回首页</a>
+            </header>
+            
+            <div class="admin-grid">
+                <!-- Left Card: Subscribers List -->
+                <div class="admin-card">
+                    <div class="admin-card-title">
+                        <span>订阅用户列表 (${subscribers.length})</span>
+                        <button id="admin-export-csv" class="admin-btn admin-btn-secondary" style="font-size: 0.65rem; padding: 4px 8px;">
+                            <i class="fas fa-file-export"></i> 导出 CSV
+                        </button>
+                    </div>
+                    
+                    <div class="admin-input-group" style="margin-bottom: 12px;">
+                        <input type="text" id="subscriber-search" class="admin-input" placeholder="搜索订阅邮箱...">
+                    </div>
+                    
+                    <div class="subscribers-table-container">
+                        <table class="subscribers-table" id="subscribers-table">
+                            <thead>
+                                <tr>
+                                    <th>加入时间</th>
+                                    <th>邮箱地址</th>
+                                    <th>语言偏好</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subscribers-list-tbody">
+                                ${subscribers.length === 0 ? `
+                                    <tr>
+                                        <td colspan="4" style="text-align: center; color: var(--text-tertiary); padding: 30px;">暂无订阅用户</td>
+                                    </tr>
+                                ` : subscribers.map(sub => {
+                                    const date = new Date(sub.created_at).toLocaleDateString('zh-CN', {
+                                        year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute:'2-digit'
+                                    });
+                                    return `
+                                        <tr class="subscriber-row" data-email="${sub.email}">
+                                            <td>${date}</td>
+                                            <td style="font-weight: 700;">${sub.email}</td>
+                                            <td style="text-transform: uppercase;">${sub.language}</td>
+                                            <td><span class="badge-active">${sub.status}</span></td>
+                                        </tr>
+                                    `;
+                                }).join("")}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Right Card: Newsletter Composer -->
+                <div class="admin-card">
+                    <div class="admin-card-title">邮件群发与测试</div>
+                    
+                    <!-- Resend API Key Config -->
+                    <div class="admin-input-group" style="background-color: var(--bg-primary); padding: 12px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-light); margin-bottom: 20px;">
+                        <label class="admin-label" style="display: flex; justify-content: space-between;">
+                            <span>Resend API Key (存本地)</span>
+                            <a href="https://resend.com" target="_blank" style="color: var(--accent-gold); text-decoration: underline; text-transform: none; font-weight: normal;">免费获取 Resend Key</a>
+                        </label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="password" id="resend-api-key" class="admin-input" placeholder="re_123456789..." value="${keySaved}">
+                            <button id="btn-save-key" class="admin-btn">保存</button>
+                        </div>
+                    </div>
+                    
+                    <form id="newsletter-form">
+                        <div class="admin-input-group">
+                            <label class="admin-label">简报主题 (Subject)</label>
+                            <input type="text" id="email-subject" class="admin-input" placeholder="媒体财经每周简报：广告技术与度量创新" required>
+                        </div>
+                        
+                        <div class="admin-input-group">
+                            <label class="admin-label">邮件内容 (Email Body - 支持 HTML)</label>
+                            <textarea id="email-body" class="admin-textarea" placeholder="<p>您好，这是本周的最新简报...</p>" required></textarea>
+                        </div>
+                        
+                        <div class="admin-tip-box">
+                            <strong>测试发送提示：</strong><br>
+                            - <strong>方式一 (推荐测试)</strong>：点击“发送测试邮件到我的邮箱”，系统将通过 Resend 沙盒发送给您自己。<br>
+                            - <strong>方式二 (免费无代码)</strong>：点击“使用本地邮箱群发 (BCC)”，这会自动调用您电脑的邮件客户端（如 Outlook/Mail/Gmail），并将所有订阅者邮箱自动放在密送 (BCC) 栏，安全又完全免费！
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button type="button" id="btn-send-test" class="admin-btn admin-btn-secondary">
+                                <i class="fas fa-paper-plane"></i> 发送测试邮件
+                            </button>
+                            <button type="submit" id="btn-send-resend" class="admin-btn">
+                                <i class="fas fa-paper-plane"></i> Resend 一键群发
+                            </button>
+                            <button type="button" id="btn-send-mailto" class="admin-btn admin-btn-secondary">
+                                <i class="fas fa-envelope"></i> 本地邮箱群发 (BCC)
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    mainEl.innerHTML = html;
+    
+    // Attach Admin View Listeners
+    attachAdminEventListeners(subscribers);
+}
+
+function attachAdminEventListeners(subscribers) {
+    // 1. Search Box
+    const searchInput = document.getElementById("subscriber-search");
+    searchInput?.addEventListener("input", (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        document.querySelectorAll(".subscriber-row").forEach(row => {
+            const email = row.dataset.email.toLowerCase();
+            if (email.includes(query)) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    });
+    
+    // 2. Save Resend Key
+    const saveKeyBtn = document.getElementById("btn-save-key");
+    saveKeyBtn?.addEventListener("click", () => {
+        const keyVal = document.getElementById("resend-api-key").value.trim();
+        localStorage.setItem("resend_api_key", keyVal);
+        alert("Resend API Key 保存成功！");
+    });
+    
+    // 3. Export CSV
+    const exportBtn = document.getElementById("admin-export-csv");
+    exportBtn?.addEventListener("click", () => {
+        if (subscribers.length === 0) {
+            alert("没有订阅者数据可供导出。");
+            return;
+        }
+        let csvContent = "data:text/csv;charset=utf-8,加入时间,订阅邮箱,语言偏好,状态\n";
+        subscribers.forEach(sub => {
+            csvContent += `"${sub.created_at}","${sub.email}","${sub.language}","${sub.status}"\n`;
+        });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `media_metric_subscribers_${new Date().toISOString().slice(0,10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+    
+    // 4. Send Test Email (Self)
+    const testBtn = document.getElementById("btn-send-test");
+    testBtn?.addEventListener("click", async () => {
+        const subject = document.getElementById("email-subject").value.trim();
+        const body = document.getElementById("email-body").value.trim();
+        const apiKey = localStorage.getItem("resend_api_key");
+        
+        if (!apiKey) {
+            alert("请先在上方配置 Resend API Key 才能进行发送测试。");
+            return;
+        }
+        if (!subject || !body) {
+            alert("请填写简报主题和邮件内容！");
+            return;
+        }
+        
+        // Find owner email (from localStorage or prompt)
+        let testEmail = State.user.email || prompt("请输入接收测试的邮箱：");
+        if (!testEmail) return;
+        
+        testBtn.disabled = true;
+        testBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 发送中...';
+        
+        const result = await sendNewsletterViaResend(subject, body, [{ email: testEmail }], apiKey);
+        
+        testBtn.disabled = false;
+        testBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 发送测试邮件';
+        
+        if (result.success && result.successCount > 0) {
+            alert(`测试邮件成功发送至 ${testEmail}！`);
+        } else {
+            alert("发送测试失败：" + (result.errors.join(", ") || "未知原因"));
+        }
+    });
+
+    // 5. Send Mailto (BCC)
+    const mailtoBtn = document.getElementById("btn-send-mailto");
+    mailtoBtn?.addEventListener("click", () => {
+        const subject = document.getElementById("email-subject").value.trim();
+        const body = document.getElementById("email-body").value.trim();
+        
+        if (subscribers.length === 0) {
+            alert("订阅列表为空，无法发送邮件。");
+            return;
+        }
+        if (!subject || !body) {
+            alert("请填写简报主题和邮件内容！");
+            return;
+        }
+
+        const emails = subscribers.map(sub => sub.email).join(",");
+        
+        // Strip HTML tags for local mail client fallback
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = body;
+        const textBody = tempDiv.textContent || tempDiv.innerText || body;
+
+        const mailtoUrl = `mailto:?bcc=${encodeURIComponent(emails)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(textBody)}`;
+        window.open(mailtoUrl, "_blank");
+    });
+    
+    // 6. Resend Bulk Send
+    const form = document.getElementById("newsletter-form");
+    form?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const subject = document.getElementById("email-subject").value.trim();
+        const body = document.getElementById("email-body").value.trim();
+        const apiKey = localStorage.getItem("resend_api_key");
+        
+        if (!apiKey) {
+            alert("请先在上方配置 Resend API Key！");
+            return;
+        }
+        if (subscribers.length === 0) {
+            alert("无可用的订阅邮箱。");
+            return;
+        }
+        
+        if (!confirm(`您确定要使用 Resend 向 ${subscribers.length} 名订阅者发送此简报吗？`)) {
+            return;
+        }
+        
+        const sendBtn = document.getElementById("btn-send-resend");
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 发送中...';
+        
+        const result = await sendNewsletterViaResend(subject, body, subscribers, apiKey);
+        
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Resend 一键群发';
+        
+        if (result.success) {
+            alert(`发送完毕！\n成功：${result.successCount} 封\n失败：${result.failCount} 封`);
+            if (result.errors.length > 0) {
+                console.error("Resend delivery errors:", result.errors);
+            }
+        } else {
+            alert("发送群发失败：" + result.error);
+        }
+    });
 }
 
 // --- 7. APPLICATION STARTUP ---
